@@ -3,324 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>eBay Rechner Ultimate</title>
+    <title>eBay Compact Pro</title>
     <style>
-        /* --- MODERN DARK UI --- */
+        /* --- CORE SETTINGS --- */
         :root {
             --bg-body: #000000;
-            --bg-card: #1c1c1e;
+            --bg-surface: #1c1c1e;
             --bg-input: #2c2c2e;
             --text-main: #ffffff;
             --text-muted: #8e8e93;
             --accent: #0a84ff;
-            --accent-dim: rgba(10, 132, 255, 0.2);
-            --border: #333333;
-            --success: #30d158;
+            --border: #333;
+            --success: #32d74b;
             --danger: #ff453a;
+            
+            /* Compact Spacing Vars */
+            --space-xs: 4px;
+            --space-s: 8px;
+            --input-h: 36px; /* Reduzierte Höhe */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             height: 100vh;
-            height: 100dvh; /* Dynamic Viewport Height für Mobile */
             width: 100vw;
-            overflow: hidden;
+            overflow: hidden; /* Scrollen komplett verbieten */
             display: flex;
             flex-direction: column;
+            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
         }
 
-        /* --- LAYOUT STRUCTURE --- */
-        .app-header {
-            padding: 15px 15px 5px 15px;
+        /* --- 1. TOP: INPUTS (Kompakt) --- */
+        .input-section {
+            background-color: var(--bg-surface);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             flex-shrink: 0;
-            background: var(--bg-body);
-            z-index: 10;
         }
 
-        .scrollable-content {
-            flex: 1; /* Füllt den verfügbaren Platz */
-            overflow-y: auto;
-            padding: 0 15px;
-            /* Scrollbar verstecken für Clean Look */
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
-        }
-        .scrollable-content::-webkit-scrollbar { display: none; }
-
-        .fixed-footer {
-            flex-shrink: 0;
-            background: rgba(28, 28, 30, 0.95); /* Leicht transparent */
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            padding: 15px 20px 30px 20px; /* Extra padding unten für iPhone Home Bar */
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-            z-index: 100;
-        }
-
-        /* --- INPUT STYLING --- */
-        .input-grid {
-            background-color: var(--bg-card);
-            border-radius: 16px;
-            padding: 12px;
+        .input-row {
             display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
-        .row-flex { display: flex; gap: 10px; }
-        .col { flex: 1; }
-
+        /* Input Styling - Reduced Height */
+        .field-wrap { position: relative; }
+        
         label {
-            display: block;
-            font-size: 0.7rem;
+            position: absolute;
+            top: 2px;
+            left: 8px;
+            font-size: 0.55rem;
             color: var(--text-muted);
-            margin-bottom: 4px;
             font-weight: 600;
-            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            pointer-events: none;
+            z-index: 2;
         }
 
         input {
             width: 100%;
+            height: var(--input-h);
             background-color: var(--bg-input);
             border: 1px solid transparent;
             color: white;
-            padding: 10px 12px;
-            border-radius: 10px;
-            font-size: 17px; /* 17px verhindert Zoom auf iOS */
+            border-radius: 8px;
+            font-size: 14px; /* Kleiner, aber lesbar */
             font-weight: 500;
             text-align: right;
-            transition: all 0.2s;
+            padding: 12px 8px 0 8px; /* Platz für Label oben */
+            transition: 0.2s;
         }
         input:focus { background-color: #3a3a3c; border-color: #555; }
-        input[type="text"] { text-align: left; }
+        input[type="text"] { text-align: left; padding-left: 8px; }
 
-        /* Category Bar (Auto-Anzeige) */
-        .cat-bar {
-            height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            background: var(--accent-dim);
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 10px;
+        /* Kategorie-Anzeige (Integriert in Name-Feld) */
+        .cat-badge {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.65rem;
             color: var(--accent);
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 0;
+            background: rgba(10, 132, 255, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
         }
-        .cat-bar.active { height: 32px; margin-bottom: 8px; opacity: 1; }
+        .cat-badge.visible { opacity: 1; }
 
-        /* Toggle Switch */
-        .switch-container {
+        /* Toggle Switch (Kompakt) */
+        .toggle-wrap {
             display: flex;
             align-items: center;
             justify-content: flex-end;
             height: 100%;
-            padding-top: 18px; /* Ausgleich für Label */
-            gap: 8px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            padding: 0 8px;
         }
-        .switch-label { font-size: 0.7rem; color: #fff; }
-        .switch { position: relative; width: 36px; height: 22px; }
+        .t-label { font-size: 0.65rem; color: #aaa; margin-right: 6px; }
+        .switch { position: relative; width: 30px; height: 18px; }
         .switch input { display: none; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; border-radius: 22px; transition: .3s; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .3s; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; border-radius: 20px; transition: .3s; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .3s; }
         input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(14px); }
+        input:checked + .slider:before { transform: translateX(12px); }
 
-        /* --- MIDDLE SECTION (Fee Breakdown) --- */
-        .fee-section {
-            padding-top: 15px;
-            padding-bottom: 20px;
+
+        /* --- 2. MIDDLE: DETAILS (Flex Fill) --- */
+        .calc-section {
+            flex: 1; /* Füllt den Rest */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Zentriert Inhalt vertikal */
+            padding: 0 20px;
+            gap: 4px; /* Sehr enge Abstände */
         }
-        .fee-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-            padding-left: 5px;
-        }
-        
+
         .line {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-            color: #ccc;
+            align-items: baseline;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 2px 0;
         }
-        .line.main { color: #fff; font-weight: 500; margin-bottom: 2px; }
-        .line.sub { font-size: 0.75rem; color: #666; font-family: monospace; margin-bottom: 10px; text-align: right; width: 100%; display: block; }
+        .line.head { font-size: 0.85rem; color: #fff; margin-bottom: 2px; }
+        .line.sub { font-size: 0.7rem; color: #555; margin-top: -2px; margin-bottom: 4px; justify-content: flex-end;}
+        .line.total { border-top: 1px dashed #333; padding-top: 4px; margin-top: 4px; color: #ddd; }
         
-        .divider { height: 1px; background: var(--border); margin: 8px 0; }
+        .divider { height: 1px; background: #222; margin: 4px 0; width: 100%; }
         
         .red { color: var(--danger); }
-        .green { color: var(--success); }
+        .val { font-family: -apple-system, monospace; letter-spacing: -0.5px; }
 
-        /* --- FIXED FOOTER (Profit) --- */
-        .footer-grid {
+
+        /* --- 3. BOTTOM: PROFIT (Fixed) --- */
+        .profit-section {
+            background-color: #111;
+            border-top: 1px solid var(--border);
+            padding: 10px 20px 20px 20px;
+            flex-shrink: 0;
+        }
+        
+        .p-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            margin-bottom: 8px;
         }
-        .f-item { display: flex; flex-direction: column; }
-        .f-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; }
-        .f-val { font-size: 1rem; color: #fff; font-weight: 500; }
-        
-        .profit-final {
-            grid-column: span 2;
+        .p-item { font-size: 0.7rem; color: #666; display: flex; flex-direction: column; }
+        .p-item span:last-child { color: #ccc; font-size: 0.9rem; margin-top: 2px; }
+
+        .p-final {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid #333;
-            margin-top: 10px;
-            padding-top: 10px;
+            padding-top: 8px;
         }
-        .profit-big { font-size: 2rem; font-weight: 700; color: var(--success); letter-spacing: -1px; }
+        .p-lbl { font-size: 0.9rem; font-weight: 600; color: #fff; }
+        .p-big { 
+            font-size: 1.6rem; /* Kleiner als vorher */
+            font-weight: 700; 
+            color: var(--success); 
+            letter-spacing: -0.5px;
+        }
 
     </style>
 </head>
 <body>
 
-    <div class="app-header">
-        <div class="input-grid">
-            <input type="text" id="itemName" placeholder="Artikelname (z.B. Sodapop)..." autocomplete="off" style="margin-bottom: 4px;">
-            
-            <div id="catBar" class="cat-bar">
-                <span id="catName">Kategorie...</span>
-                <span id="catRate">--</span>
-            </div>
+    <div class="input-section">
+        <div class="field-wrap">
+            <input type="text" id="itemName" placeholder="Produktname..." autocomplete="off" style="padding-top:0; padding-left:10px;">
+            <div id="catBadge" class="cat-badge">11%</div>
+        </div>
 
-            <div class="row-flex">
-                <div class="col">
-                    <label>Verkauf €</label>
-                    <input type="number" id="price" placeholder="0" inputmode="decimal">
-                </div>
-                <div class="col">
-                    <label>Einkauf €</label>
-                    <input type="number" id="cost" placeholder="0" inputmode="decimal">
-                </div>
+        <div class="input-row">
+            <div class="field-wrap">
+                <label>Verkauf €</label>
+                <input type="number" id="price" placeholder="0" inputmode="decimal">
             </div>
-
-            <div class="row-flex">
-                <div class="col">
-                    <label>Versand (Kunde)</label>
-                    <input type="number" id="shipCharged" placeholder="0" inputmode="decimal">
-                </div>
-                <div class="col">
-                    <label>Versand (Label)</label>
-                    <input type="number" id="shipCost" placeholder="0" inputmode="decimal" style="color: #ffaa9d;">
-                </div>
+            <div class="field-wrap">
+                <label>Einkauf €</label>
+                <input type="number" id="cost" placeholder="0" inputmode="decimal">
             </div>
+        </div>
 
-            <div class="row-flex">
-                <div class="col">
-                    <label>Anzeige % (Opt)</label>
-                    <input type="number" id="adRate" placeholder="0" inputmode="decimal">
-                </div>
-                <div class="col">
-                    <div class="switch-container">
-                        <span class="switch-label">Free Ship</span>
-                        <label class="switch">
-                            <input type="checkbox" id="freeShipToggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
+        <div class="input-row">
+            <div class="field-wrap">
+                <label>Versand (Kunde)</label>
+                <input type="number" id="shipCharged" placeholder="0" inputmode="decimal">
+            </div>
+            <div class="field-wrap">
+                <label>Versand (Label)</label>
+                <input type="number" id="shipCost" placeholder="0" inputmode="decimal" style="color: #ffaa9d;">
+            </div>
+        </div>
+
+        <div class="input-row">
+            <div class="field-wrap">
+                <label>Anzeige %</label>
+                <input type="number" id="adRate" placeholder="0" inputmode="decimal">
+            </div>
+            <div class="toggle-wrap">
+                <span class="t-label">Free Ship</span>
+                <label class="switch">
+                    <input type="checkbox" id="freeShipToggle">
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
     </div>
 
-    <div class="scrollable-content">
-        <div class="fee-section">
-            <div class="fee-title">Kalkulation</div>
+    <div class="calc-section">
+        <div class="line head">
+            <span>Gebührengrundlage</span>
+            <span class="val" id="lblBasis" style="text-decoration:underline;">0,00 €</span>
+        </div>
+        
+        <div class="divider"></div>
 
-            <div class="line">
-                <span>Gebührengrundlage</span>
-                <span id="lblBasis" style="text-decoration: underline;">0,00 €</span>
-            </div>
-            
-            <div style="height:10px"></div>
+        <div class="line">
+            <span>Provision (Variabel)</span>
+            <span class="val red" id="lblVarFee">0,00 €</span>
+        </div>
+        <div class="line sub" id="lblCalcVar">0 € x 0%</div>
 
-            <div class="line main">
-                <span>Verkaufsprovision (Var)</span>
-                <span class="red" id="lblVarFee">0,00 €</span>
-            </div>
-            <span class="line sub" id="lblCalcVar">0 € x 0%</span>
+        <div class="line">
+            <span>Provision (Fix)</span>
+            <span class="val red">- 0,35 €</span>
+        </div>
 
-            <div class="line main">
-                <span>Verkaufsprovision (Fix)</span>
-                <span class="red">- 0,35 €</span>
-            </div>
+        <div class="line total" style="color:#aaa;">
+            <span>MwSt (19%) auf Provision</span>
+            <span class="val red" id="lblVat">0,00 €</span>
+        </div>
 
+        <div class="line" style="color:#fff; font-weight:500;">
+            <span>Zwischensumme (Prov.)</span>
+            <span class="val red" id="lblProvGross">0,00 €</span>
+        </div>
+
+        <div id="rowAd" style="display:none; flex-direction:column; margin-top:4px;">
             <div class="divider"></div>
-            <div class="line" style="font-size: 0.8rem; color: #888;">
-                <span>MwSt (19%) auf Provision</span>
-                <span class="red" id="lblVat">0,00 €</span>
+            <div class="line" style="color: #ffab40;">
+                <span>Anzeigegebühr (Brutto)</span>
+                <span class="val" id="lblAdGross">0,00 €</span>
             </div>
-            
-            <div class="line main" style="margin-top: 5px;">
-                <span>Zwischensumme Prov. (Brutto)</span>
-                <span class="red" id="lblProvGross">0,00 €</span>
-            </div>
-
-            <div id="rowAd" style="display:none; margin-top: 10px; border-top: 1px dashed #333; padding-top: 10px;">
-                <div class="line main" style="color: #ffab40;">
-                    <span>Anzeigegebühr (Brutto)</span>
-                    <span id="lblAdGross">- 0,00 €</span>
-                </div>
-                <span class="line sub" id="lblCalcAd" style="color: #ffab40;">Inkl. MwSt</span>
-            </div>
-
+            <div class="line sub" style="color:#8f6b3b;">Inkl. 19% MwSt</div>
         </div>
     </div>
 
-    <div class="fixed-footer">
-        <div class="footer-grid">
-            <div class="f-item">
-                <span class="f-label">Verkaufserlös (Payout)</span>
-                <span class="f-val" id="lblPayout">0,00 €</span>
+    <div class="profit-section">
+        <div class="p-grid">
+            <div class="p-item">
+                <span>Verkaufserlös</span>
+                <span id="lblPayout">0,00 €</span>
             </div>
-            <div class="f-item" style="align-items: flex-end;">
-                <span class="f-label">Kosten (Ware + Versand)</span>
-                <span class="f-val red" id="lblDeductions">0,00 €</span>
+            <div class="p-item" style="align-items: flex-end;">
+                <span>Kosten (Total)</span>
+                <span class="red" id="lblTotalCost">0,00 €</span>
             </div>
-            
-            <div class="profit-final">
-                <span style="font-weight: 600; color: #aaa;">Reingewinn</span>
-                <span class="profit-big" id="lblProfit">0,00 €</span>
-            </div>
+        </div>
+        
+        <div class="p-final">
+            <span class="p-lbl">Reingewinn</span>
+            <span class="p-big" id="lblProfit">0,00 €</span>
         </div>
     </div>
 
     <script>
-        // --- DATA ---
+        /* --- LOGIC IDENTICAL TO BEFORE --- */
         const categories = [
-            { name: "Business & Industrie", rate: 11.0, keys: ["sodapop", "flasche", "haix", "set", "pack", "werkzeug"] },
-            { name: "Elektronik & Technik", rate: 6.5, keys: ["handy", "iphone", "samsung", "laptop", "pc", "kabel"] },
-            { name: "Mode & Schuhe", rate: 12.0, keys: ["schuh", "sneaker", "nike", "adidas", "shirt", "hose"] },
-            { name: "Medien & Bücher", rate: 9.0, keys: ["buch", "spiel", "game", "dvd", "cd"] }
+            { name: "Business", rate: 11.0, keys: ["sodapop", "flasche", "haix", "set", "pack", "werkzeug"] },
+            { name: "Tech", rate: 6.5, keys: ["handy", "iphone", "samsung", "laptop", "pc", "kabel"] },
+            { name: "Mode", rate: 12.0, keys: ["schuh", "sneaker", "nike", "adidas", "shirt", "hose"] },
+            { name: "Medien", rate: 9.0, keys: ["buch", "spiel", "game", "dvd", "cd"] }
         ];
 
-        // --- ELEMENTS ---
         const inputs = document.querySelectorAll('input');
         const itemName = document.getElementById('itemName');
         const inpShipCharged = document.getElementById('shipCharged');
         const inpShipCost = document.getElementById('shipCost');
         const toggleFreeShip = document.getElementById('freeShipToggle');
         
-        // Cat UI
-        const catBar = document.getElementById('catBar');
-        const catName = document.getElementById('catName');
-        const catRate = document.getElementById('catRate');
-
-        // Labels
+        const catBadge = document.getElementById('catBadge');
+        
+        // Output Labels
         const uiBasis = document.getElementById('lblBasis');
         const uiVarFee = document.getElementById('lblVarFee');
         const uiCalcVar = document.getElementById('lblCalcVar');
@@ -329,17 +309,14 @@
         
         const rowAd = document.getElementById('rowAd');
         const uiAdGross = document.getElementById('lblAdGross');
-        const uiCalcAd = document.getElementById('lblCalcAd');
         
         const uiPayout = document.getElementById('lblPayout');
-        const uiDeductions = document.getElementById('lblDeductions');
+        const uiTotalCost = document.getElementById('lblTotalCost');
         const uiProfit = document.getElementById('lblProfit');
 
         const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n);
 
-        // --- LOGIC ---
-        
-        // Auto-Fill Ship Cost
+        // --- HANDLERS ---
         inpShipCharged.addEventListener('input', () => {
             if(!toggleFreeShip.checked && document.activeElement === inpShipCharged) {
                 inpShipCost.value = inpShipCharged.value;
@@ -347,7 +324,6 @@
             }
         });
 
-        // Toggle Free Ship
         toggleFreeShip.addEventListener('change', () => {
             if(toggleFreeShip.checked) {
                 inpShipCharged.value = 0;
@@ -360,7 +336,6 @@
         });
 
         function calculate() {
-            // Inputs
             const nameTxt = itemName.value.toLowerCase();
             const price = parseFloat(document.getElementById('price').value) || 0;
             const cost = parseFloat(document.getElementById('cost').value) || 0;
@@ -368,33 +343,29 @@
             const shipExp = parseFloat(inpShipCost.value) || 0;
             const adRate = parseFloat(document.getElementById('adRate').value) || 0;
 
-            // Category
+            // Category Logic
             let rate = 11.0; 
-            let catStr = "Standard";
             if(nameTxt.length > 2) {
                 for(let c of categories) {
                     if(c.keys.some(k => nameTxt.includes(k))) {
                         rate = c.rate;
-                        catStr = c.name;
                         break;
                     }
                 }
-                catBar.classList.add('active');
-                catName.innerText = catStr;
-                catRate.innerText = rate + "%";
+                catBadge.innerText = rate + "%";
+                catBadge.classList.add('visible');
             } else {
-                catBar.classList.remove('active');
+                catBadge.classList.remove('visible');
             }
 
-            // --- MATH ---
+            // Math
             const basis = price + shipInc;
             
             // 1. Provision (Netto)
             const varFee = basis * (rate / 100);
-            const fixedFee = 0.35;
-            const provNet = varFee + fixedFee;
+            const provNet = varFee + 0.35;
             
-            // MwSt auf Provision
+            // MwSt nur auf Provision
             const vatProv = provNet * 0.19;
             const provGross = provNet + vatProv;
 
@@ -405,9 +376,8 @@
                 const adVat = adNet * 0.19;
                 adFeeGross = adNet + adVat;
                 
-                rowAd.style.display = 'block';
+                rowAd.style.display = 'flex';
                 uiAdGross.innerText = "- " + fmt(adFeeGross);
-                uiCalcAd.innerText = `${fmt(basis)} x ${adRate}% + 19% MwSt`;
             } else {
                 rowAd.style.display = 'none';
             }
@@ -416,16 +386,15 @@
             const payout = basis - provGross - adFeeGross;
             const profit = payout - cost - shipExp;
 
-            // --- UPDATE UI ---
+            // Update UI
             uiBasis.innerText = fmt(basis);
             uiVarFee.innerText = "- " + fmt(varFee);
             uiCalcVar.innerText = `${fmt(basis)} x ${rate}%`;
-            
             uiVat.innerText = "- " + fmt(vatProv);
             uiProvGross.innerText = "- " + fmt(provGross);
             
             uiPayout.innerText = fmt(payout);
-            uiDeductions.innerText = "- " + fmt(cost + shipExp);
+            uiTotalCost.innerText = "- " + fmt(cost + shipExp);
             
             uiProfit.innerText = fmt(profit);
             uiProfit.style.color = profit >= 0 ? "var(--success)" : "var(--danger)";
