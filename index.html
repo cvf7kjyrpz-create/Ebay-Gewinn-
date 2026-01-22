@@ -2,97 +2,85 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>eBay Rechner Exact</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>eBay Rechner Ultimate</title>
     <style>
-        /* --- MODERN & COMPACT STYLE --- */
+        /* --- MODERN DARK UI --- */
         :root {
             --bg-body: #000000;
-            --bg-card: #151516;
-            --bg-input: #252527;
+            --bg-card: #1c1c1e;
+            --bg-input: #2c2c2e;
             --text-main: #ffffff;
             --text-muted: #8e8e93;
-            --accent: #0a84ff; 
-            --accent-bg: rgba(10, 132, 255, 0.15);
+            --accent: #0a84ff;
+            --accent-dim: rgba(10, 132, 255, 0.2);
             --border: #333333;
-            --success: #32d74b;
+            --success: #30d158;
             --danger: #ff453a;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             height: 100vh;
+            height: 100dvh; /* Dynamic Viewport Height für Mobile */
             width: 100vw;
             overflow: hidden;
             display: flex;
-            justify-content: center;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 500px;
-            height: 100%;
-            display: flex;
             flex-direction: column;
-            padding: 12px;
         }
 
-        /* --- HEADER --- */
-        h1 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        /* --- LAYOUT STRUCTURE --- */
+        .app-header {
+            padding: 15px 15px 5px 15px;
+            flex-shrink: 0;
+            background: var(--bg-body);
+            z-index: 10;
         }
 
-        /* --- INPUTS --- */
-        .input-section {
+        .scrollable-content {
+            flex: 1; /* Füllt den verfügbaren Platz */
+            overflow-y: auto;
+            padding: 0 15px;
+            /* Scrollbar verstecken für Clean Look */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .scrollable-content::-webkit-scrollbar { display: none; }
+
+        .fixed-footer {
+            flex-shrink: 0;
+            background: rgba(28, 28, 30, 0.95); /* Leicht transparent */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 15px 20px 30px 20px; /* Extra padding unten für iPhone Home Bar */
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        /* --- INPUT STYLING --- */
+        .input-grid {
             background-color: var(--bg-card);
+            border-radius: 16px;
             padding: 12px;
-            border-radius: 14px;
-            margin-bottom: 8px;
-        }
-
-        .name-row { margin-bottom: 8px; }
-        
-        .category-bar {
-            background-color: var(--accent-bg);
-            border: 1px solid rgba(10, 132, 255, 0.3);
-            border-radius: 8px;
-            padding: 8px 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: var(--accent);
-            opacity: 0;
-            height: 0;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        .category-bar.active { opacity: 1; height: auto; margin-bottom: 12px; }
-
-        .grid-2 {
             display: grid;
-            grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 10px;
         }
+
+        .row-flex { display: flex; gap: 10px; }
+        .col { flex: 1; }
 
         label {
             display: block;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
-            margin-bottom: 3px;
+            margin-bottom: 4px;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         input {
@@ -100,130 +88,145 @@
             background-color: var(--bg-input);
             border: 1px solid transparent;
             color: white;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 16px; 
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 17px; /* 17px verhindert Zoom auf iOS */
             font-weight: 500;
             text-align: right;
+            transition: all 0.2s;
         }
-        input:focus { background-color: #2f2f32; border-color: #444; }
+        input:focus { background-color: #3a3a3c; border-color: #555; }
         input[type="text"] { text-align: left; }
 
-        .toggle-container {
+        /* Category Bar (Auto-Anzeige) */
+        .cat-bar {
+            height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: var(--accent-dim);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        .cat-bar.active { height: 32px; margin-bottom: 8px; opacity: 1; }
+
+        /* Toggle Switch */
+        .switch-container {
             display: flex;
             align-items: center;
             justify-content: flex-end;
+            height: 100%;
+            padding-top: 18px; /* Ausgleich für Label */
             gap: 8px;
         }
-        .toggle-label { font-size: 0.7rem; color: #fff; }
-        .switch { position: relative; width: 34px; height: 20px; }
+        .switch-label { font-size: 0.7rem; color: #fff; }
+        .switch { position: relative; width: 36px; height: 22px; }
         .switch input { display: none; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; border-radius: 20px; transition: .3s; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .3s; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; border-radius: 22px; transition: .3s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .3s; }
         input:checked + .slider { background-color: var(--accent); }
         input:checked + .slider:before { transform: translateX(14px); }
 
-        /* --- RESULTS --- */
-        .result-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--bg-card);
-            border-radius: 14px;
-            padding: 14px;
-            overflow-y: auto;
+        /* --- MIDDLE SECTION (Fee Breakdown) --- */
+        .fee-section {
+            padding-top: 15px;
+            padding-bottom: 20px;
         }
-
-        .row {
+        .fee-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            padding-left: 5px;
+        }
+        
+        .line {
             display: flex;
             justify-content: space-between;
             margin-bottom: 6px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            font-size: 0.9rem;
+            color: #ccc;
         }
-        .row.main { color: #e0e0e0; margin-bottom: 2px; }
-        .row.total-line {
-            border-top: 1px dashed var(--border);
-            padding-top: 8px;
-            margin-top: 8px;
-            font-weight: 600;
-            color: #fff;
-        }
+        .line.main { color: #fff; font-weight: 500; margin-bottom: 2px; }
+        .line.sub { font-size: 0.75rem; color: #666; font-family: monospace; margin-bottom: 10px; text-align: right; width: 100%; display: block; }
         
-        .calc-detail {
-            text-align: right;
-            font-family: monospace;
-            font-size: 0.7rem;
-            color: #555;
-            margin-bottom: 8px;
-        }
-
+        .divider { height: 1px; background: var(--border); margin: 8px 0; }
+        
         .red { color: var(--danger); }
         .green { color: var(--success); }
 
-        /* Profit Box */
-        .profit-wrapper {
-            margin-top: auto; 
-            background-color: #0a0a0a;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px;
-            margin-top: 15px;
+        /* --- FIXED FOOTER (Profit) --- */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
-        .p-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #777; margin-bottom: 4px; }
-        .p-final { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-top: 8px; padding-top: 8px; border-top: 1px solid #222; 
+        .f-item { display: flex; flex-direction: column; }
+        .f-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; }
+        .f-val { font-size: 1rem; color: #fff; font-weight: 500; }
+        
+        .profit-final {
+            grid-column: span 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #333;
+            margin-top: 10px;
+            padding-top: 10px;
         }
-        .p-val { font-size: 1.6rem; font-weight: 700; color: var(--success); }
+        .profit-big { font-size: 2rem; font-weight: 700; color: var(--success); letter-spacing: -1px; }
 
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <h1>eBay Rechner Pro</h1>
-
-        <div class="input-section">
-            <div class="name-row">
-                <input type="text" id="itemName" placeholder="Artikelname..." autocomplete="off">
+    <div class="app-header">
+        <div class="input-grid">
+            <input type="text" id="itemName" placeholder="Artikelname (z.B. Sodapop)..." autocomplete="off" style="margin-bottom: 4px;">
+            
+            <div id="catBar" class="cat-bar">
+                <span id="catName">Kategorie...</span>
+                <span id="catRate">--</span>
             </div>
 
-            <div id="catBar" class="category-bar">
-                <span id="catNameDisplay">Kategorie...</span>
-                <span id="catRateDisplay" style="font-weight: 700;">--</span>
-            </div>
-
-            <div class="grid-2">
-                <div>
-                    <label>Verkaufspreis €</label>
+            <div class="row-flex">
+                <div class="col">
+                    <label>Verkauf €</label>
                     <input type="number" id="price" placeholder="0" inputmode="decimal">
                 </div>
-                <div>
-                    <label>Einkaufspreis €</label>
+                <div class="col">
+                    <label>Einkauf €</label>
                     <input type="number" id="cost" placeholder="0" inputmode="decimal">
                 </div>
             </div>
 
-            <div class="grid-2">
-                <div>
+            <div class="row-flex">
+                <div class="col">
                     <label>Versand (Kunde)</label>
                     <input type="number" id="shipCharged" placeholder="0" inputmode="decimal">
                 </div>
-                <div>
+                <div class="col">
                     <label>Versand (Label)</label>
                     <input type="number" id="shipCost" placeholder="0" inputmode="decimal" style="color: #ffaa9d;">
                 </div>
             </div>
 
-            <div class="grid-2" style="margin-bottom: 0;">
-                <div>
-                    <label>Anzeige (%)</label>
-                    <input type="number" id="adRate" placeholder="Opt." inputmode="decimal">
+            <div class="row-flex">
+                <div class="col">
+                    <label>Anzeige % (Opt)</label>
+                    <input type="number" id="adRate" placeholder="0" inputmode="decimal">
                 </div>
-                <div style="display:flex; align-items:flex-end; justify-content:flex-end; padding-bottom: 8px;">
-                    <div class="toggle-container">
-                        <span class="toggle-label">Free Ship</span>
+                <div class="col">
+                    <div class="switch-container">
+                        <span class="switch-label">Free Ship</span>
                         <label class="switch">
                             <input type="checkbox" id="freeShipToggle">
                             <span class="slider"></span>
@@ -232,54 +235,66 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="result-section">
-            
-            <div class="row main">
+    <div class="scrollable-content">
+        <div class="fee-section">
+            <div class="fee-title">Kalkulation</div>
+
+            <div class="line">
                 <span>Gebührengrundlage</span>
                 <span id="lblBasis" style="text-decoration: underline;">0,00 €</span>
             </div>
-            <div style="height: 10px;"></div>
+            
+            <div style="height:10px"></div>
 
-            <div class="row">
+            <div class="line main">
                 <span>Verkaufsprovision (Var)</span>
                 <span class="red" id="lblVarFee">0,00 €</span>
             </div>
-            <div class="calc-detail" id="lblCalcVar">0 € x 0%</div>
+            <span class="line sub" id="lblCalcVar">0 € x 0%</span>
 
-            <div class="row">
+            <div class="line main">
                 <span>Verkaufsprovision (Fix)</span>
                 <span class="red">- 0,35 €</span>
             </div>
 
-            <div class="row total-line" style="border-top: 1px solid #333; margin-top:5px; padding-top:5px; font-weight: normal; font-size: 0.8rem; color: #aaa;">
+            <div class="divider"></div>
+            <div class="line" style="font-size: 0.8rem; color: #888;">
                 <span>MwSt (19%) auf Provision</span>
                 <span class="red" id="lblVat">0,00 €</span>
             </div>
-
-            <div class="row total-line">
-                <span>Zwischensumme Provision (Brutto)</span>
+            
+            <div class="line main" style="margin-top: 5px;">
+                <span>Zwischensumme Prov. (Brutto)</span>
                 <span class="red" id="lblProvGross">0,00 €</span>
             </div>
 
-            <div class="profit-wrapper">
-                <div class="p-row" id="rowAd" style="display:none; color: var(--danger);">
-                    <span>- Anzeigegebühr (Brutto)</span>
-                    <span id="lblAdGross">0,00 €</span>
+            <div id="rowAd" style="display:none; margin-top: 10px; border-top: 1px dashed #333; padding-top: 10px;">
+                <div class="line main" style="color: #ffab40;">
+                    <span>Anzeigegebühr (Brutto)</span>
+                    <span id="lblAdGross">- 0,00 €</span>
                 </div>
-                
-                <div class="p-row" style="margin-top: 5px;">
-                    <span>Verkaufserlös (nach Gebühren)</span>
-                    <span id="lblPayout">0,00 €</span>
-                </div>
-                <div class="p-row">
-                    <span>- Versandlabel & Einkauf</span>
-                    <span class="red" id="lblDeductions">0,00 €</span>
-                </div>
-                <div class="p-final">
-                    <span style="font-weight:600; font-size: 0.9rem;">Reingewinn</span>
-                    <span class="p-val" id="lblProfit">0,00 €</span>
-                </div>
+                <span class="line sub" id="lblCalcAd" style="color: #ffab40;">Inkl. MwSt</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="fixed-footer">
+        <div class="footer-grid">
+            <div class="f-item">
+                <span class="f-label">Verkaufserlös (Payout)</span>
+                <span class="f-val" id="lblPayout">0,00 €</span>
+            </div>
+            <div class="f-item" style="align-items: flex-end;">
+                <span class="f-label">Kosten (Ware + Versand)</span>
+                <span class="f-val red" id="lblDeductions">0,00 €</span>
+            </div>
+            
+            <div class="profit-final">
+                <span style="font-weight: 600; color: #aaa;">Reingewinn</span>
+                <span class="profit-big" id="lblProfit">0,00 €</span>
             </div>
         </div>
     </div>
@@ -290,7 +305,7 @@
             { name: "Business & Industrie", rate: 11.0, keys: ["sodapop", "flasche", "haix", "set", "pack", "werkzeug"] },
             { name: "Elektronik & Technik", rate: 6.5, keys: ["handy", "iphone", "samsung", "laptop", "pc", "kabel"] },
             { name: "Mode & Schuhe", rate: 12.0, keys: ["schuh", "sneaker", "nike", "adidas", "shirt", "hose"] },
-            { name: "Medien (Bücher/Games)", rate: 9.0, keys: ["buch", "spiel", "game", "dvd", "cd"] }
+            { name: "Medien & Bücher", rate: 9.0, keys: ["buch", "spiel", "game", "dvd", "cd"] }
         ];
 
         // --- ELEMENTS ---
@@ -300,19 +315,21 @@
         const inpShipCost = document.getElementById('shipCost');
         const toggleFreeShip = document.getElementById('freeShipToggle');
         
-        // UI Refs
+        // Cat UI
         const catBar = document.getElementById('catBar');
-        const catNameDisplay = document.getElementById('catNameDisplay');
-        const catRateDisplay = document.getElementById('catRateDisplay');
+        const catName = document.getElementById('catName');
+        const catRate = document.getElementById('catRate');
 
+        // Labels
         const uiBasis = document.getElementById('lblBasis');
         const uiVarFee = document.getElementById('lblVarFee');
         const uiCalcVar = document.getElementById('lblCalcVar');
         const uiVat = document.getElementById('lblVat');
-        const uiProvGross = document.getElementById('lblProvGross'); // Nur Provision
+        const uiProvGross = document.getElementById('lblProvGross');
         
         const rowAd = document.getElementById('rowAd');
         const uiAdGross = document.getElementById('lblAdGross');
+        const uiCalcAd = document.getElementById('lblCalcAd');
         
         const uiPayout = document.getElementById('lblPayout');
         const uiDeductions = document.getElementById('lblDeductions');
@@ -322,6 +339,7 @@
 
         // --- LOGIC ---
         
+        // Auto-Fill Ship Cost
         inpShipCharged.addEventListener('input', () => {
             if(!toggleFreeShip.checked && document.activeElement === inpShipCharged) {
                 inpShipCost.value = inpShipCharged.value;
@@ -329,6 +347,7 @@
             }
         });
 
+        // Toggle Free Ship
         toggleFreeShip.addEventListener('change', () => {
             if(toggleFreeShip.checked) {
                 inpShipCharged.value = 0;
@@ -341,7 +360,7 @@
         });
 
         function calculate() {
-            // 1. Get Values
+            // Inputs
             const nameTxt = itemName.value.toLowerCase();
             const price = parseFloat(document.getElementById('price').value) || 0;
             const cost = parseFloat(document.getElementById('cost').value) || 0;
@@ -349,10 +368,9 @@
             const shipExp = parseFloat(inpShipCost.value) || 0;
             const adRate = parseFloat(document.getElementById('adRate').value) || 0;
 
-            // 2. Detect Category
+            // Category
             let rate = 11.0; 
-            let catStr = "Standard / Sonstige";
-            
+            let catStr = "Standard";
             if(nameTxt.length > 2) {
                 for(let c of categories) {
                     if(c.keys.some(k => nameTxt.includes(k))) {
@@ -362,60 +380,48 @@
                     }
                 }
                 catBar.classList.add('active');
-                catNameDisplay.innerText = catStr;
-                catRateDisplay.innerText = rate + "%";
+                catName.innerText = catStr;
+                catRate.innerText = rate + "%";
             } else {
                 catBar.classList.remove('active');
             }
 
-            // 3. Math
+            // --- MATH ---
             const basis = price + shipInc;
             
-            // --- BLOCK 1: VERKAUFSPROVISION (Wie eBay Top-Block) ---
-            // Variable Provision (Netto)
+            // 1. Provision (Netto)
             const varFee = basis * (rate / 100);
             const fixedFee = 0.35;
-            
-            // Zwischensumme Provision Netto
             const provNet = varFee + fixedFee;
             
-            // MwSt nur auf Provision (DAS ist der Wert für 0,38 €)
+            // MwSt auf Provision
             const vatProv = provNet * 0.19;
-            
-            // Provision Brutto
             const provGross = provNet + vatProv;
 
-
-            // --- BLOCK 2: ANZEIGENGEBÜHR (Separat) ---
+            // 2. Anzeigegebühr (Brutto)
             let adFeeGross = 0;
             if(adRate > 0) {
-                // Anzeige berechnet sich meist auf Basis, ist Netto, dann + MwSt
                 const adNet = basis * (adRate / 100);
                 const adVat = adNet * 0.19;
                 adFeeGross = adNet + adVat;
                 
-                rowAd.style.display = 'flex';
+                rowAd.style.display = 'block';
                 uiAdGross.innerText = "- " + fmt(adFeeGross);
+                uiCalcAd.innerText = `${fmt(basis)} x ${adRate}% + 19% MwSt`;
             } else {
                 rowAd.style.display = 'none';
             }
 
-
-            // 4. Totals
-            // Payout = Einnahme (Basis) - Provision(Brutto) - Anzeige(Brutto)
+            // 3. Totals
             const payout = basis - provGross - adFeeGross;
-            
-            // Reingewinn
             const profit = payout - cost - shipExp;
 
-
-            // 5. Update UI
+            // --- UPDATE UI ---
             uiBasis.innerText = fmt(basis);
-            
             uiVarFee.innerText = "- " + fmt(varFee);
             uiCalcVar.innerText = `${fmt(basis)} x ${rate}%`;
-
-            uiVat.innerText = "- " + fmt(vatProv); // Jetzt stimmt es mit eBay überein!
+            
+            uiVat.innerText = "- " + fmt(vatProv);
             uiProvGross.innerText = "- " + fmt(provGross);
             
             uiPayout.innerText = fmt(payout);
