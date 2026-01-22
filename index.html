@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>eBay Calc Fixed</title>
+    <title>eBay Profit App</title>
     <style>
-        /* --- MODERN DARK THEME --- */
+        /* --- CORE DESIGN SYSTEM --- */
         :root {
             --bg-body: #000000;
-            --card-bg: #151516;
-            --input-bg: #262628;
+            --bg-surface: #1c1c1e;
+            --bg-input: #2c2c2e;
             --text-main: #ffffff;
-            --text-muted: #8e8e93;
+            --text-muted: #98989d;
             --accent: #0a84ff;
             --accent-dim: rgba(10, 132, 255, 0.15);
             --border: #333;
@@ -25,49 +25,93 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
+            /* WICHTIG: Volle Höhe und Breite nutzen */
             height: 100vh;
+            height: 100dvh; 
             width: 100vw;
-            display: flex;
-            justify-content: center;
-            align-items: center; 
             overflow: hidden;
-        }
-
-        /* --- HAUPTKARTE --- */
-        .main-card {
-            background-color: var(--card-bg);
-            width: 92%;
-            max-width: 380px;
-            border-radius: 22px;
-            border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-            overflow: hidden;
-            max-height: 95vh;
         }
 
-        /* --- INPUTS --- */
-        .header-section {
-            padding: 18px 18px 5px 18px;
-            background: var(--card-bg);
+        /* Begrenzung nur für Desktop, damit es nicht riesig breit wird */
+        .app-wrapper {
+            width: 100%;
+            height: 100%;
+            max-width: 600px; /* Auf Desktop wie ein Handy */
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-body);
+            position: relative;
+        }
+
+        /* --- 1. HEADER & INPUTS (Oben) --- */
+        .header {
+            padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px;
+            background-color: var(--bg-body);
+            border-bottom: 1px solid #1a1a1a;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
         h1 {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             text-align: center;
             color: #555;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        /* Grid Layout für Inputs */
+        .grid { display: flex; flex-direction: column; gap: 12px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .field { position: relative; }
+
+        label {
+            position: absolute;
+            top: 7px;
+            left: 12px;
+            font-size: 0.6rem;
+            color: #888;
+            text-transform: uppercase;
+            font-weight: 700;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        input {
+            width: 100%;
+            height: 50px; /* Großzügige Touch-Höhe */
+            background-color: var(--bg-input);
+            border: 1px solid transparent;
+            color: #fff;
+            border-radius: 12px;
+            padding: 18px 12px 6px 12px;
+            font-size: 17px; /* 17px verhindert Zoom auf iOS */
+            font-weight: 500;
+            text-align: right;
+            transition: 0.2s;
+        }
+        input:focus { background-color: #3a3a3c; border-color: #555; outline: none; }
+        input[type="text"] { text-align: left; padding-left: 12px; }
+        
+        input:disabled {
+            opacity: 0.4;
+            background-color: #151515;
+            border: 1px dashed #333;
+            color: #777;
         }
 
         /* KATEGORIE LEISTE */
         .cat-bar {
             background: var(--accent-dim);
-            border: 1px solid rgba(10, 132, 255, 0.25);
+            border: 1px solid rgba(10, 132, 255, 0.3);
             border-radius: 8px;
-            padding: 0 10px;
+            padding: 0 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -78,159 +122,115 @@
             opacity: 0;
             margin-bottom: 0;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
         .cat-bar.active {
-            height: 34px;
-            margin-bottom: 10px;
+            height: 36px;
+            margin-bottom: 4px;
             opacity: 1;
         }
 
-        /* INPUT GRID */
-        .input-grid { display: flex; flex-direction: column; gap: 10px; }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        .field { position: relative; }
-        
-        label {
-            position: absolute;
-            top: 6px;
-            left: 10px;
-            font-size: 0.6rem;
-            color: #777;
-            text-transform: uppercase;
-            font-weight: 700;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        input {
-            width: 100%;
-            background-color: var(--input-bg);
-            border: 1px solid transparent;
-            color: #fff;
-            border-radius: 10px;
-            padding: 18px 10px 6px 10px; 
-            font-size: 16px; 
-            font-weight: 500;
-            text-align: right;
-            height: 48px; /* Etwas höher für bessere Touch-Targets */
-            transition: 0.2s;
-        }
-        input:focus { background-color: #303033; border-color: #555; outline: none; }
-        input[type="text"] { text-align: left; padding-left: 10px; }
-        
-        input:disabled {
-            opacity: 0.4;
-            background-color: #1a1a1c;
-            border: 1px dashed #333;
-            color: #666;
-        }
-
-        /* --- NEUER TOGGLE BUTTON STYLE --- */
-        /* Das Label umschließt jetzt alles -> ganze Fläche klickbar */
+        /* TOGGLE BUTTON STYLE */
         .toggle-btn {
-            background-color: var(--input-bg);
-            border-radius: 10px;
-            height: 48px;
+            background-color: var(--bg-input);
+            border-radius: 12px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 10px;
             cursor: pointer;
             border: 1px solid transparent;
-            transition: 0.2s;
         }
         .toggle-btn:active { background-color: #333; }
         
-        .toggle-txt {
+        .toggle-label {
             font-size: 0.65rem;
             color: #aaa;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             line-height: 1.2;
         }
 
-        /* Checkbox versteckt */
-        .toggle-btn input { display: none; }
-
-        /* Custom Slider Visual */
-        .toggle-visual {
+        .switch-ui {
             position: relative;
-            width: 38px;
-            height: 22px;
+            width: 44px;
+            height: 24px;
             background-color: #444;
-            border-radius: 20px;
+            border-radius: 24px;
             transition: 0.3s;
         }
-        .toggle-visual::after {
+        .switch-ui::after {
             content: '';
             position: absolute;
             top: 2px;
             left: 2px;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             background-color: #fff;
             border-radius: 50%;
             transition: 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
-        /* Wenn Checkbox checked */
-        .toggle-btn input:checked + .toggle-visual {
-            background-color: var(--accent);
-        }
-        .toggle-btn input:checked + .toggle-visual::after {
-            transform: translateX(16px);
-        }
+        /* Checkbox Logic */
+        .toggle-btn input { display: none; }
+        .toggle-btn input:checked + .switch-ui { background-color: var(--accent); }
+        .toggle-btn input:checked + .switch-ui::after { transform: translateX(20px); }
 
 
-        /* --- MITTE: RECHNUNG --- */
-        .calc-section {
-            padding: 10px 20px;
+        /* --- 2. MITTE: RECHNUNG (Flexibel) --- */
+        .content {
+            flex: 1; /* Füllt den gesamten Restplatz aus */
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            flex: 1; 
-            justify-content: center;
-            overflow-y: auto; 
+            justify-content: center; /* Zentriert die Rechnung vertikal im freien Raum */
+            padding: 0 25px;
+            overflow-y: auto;
         }
 
-        .line {
+        .bill-row {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #888;
-            padding: 2px 0;
+            padding: 3px 0;
         }
-        .line.head { color: #fff; font-weight: 500; margin-bottom: 4px; }
-        .line.sub { font-size: 0.7rem; color: #555; font-family: monospace; margin-bottom: 6px; justify-content: flex-end; }
+        .bill-row.head { color: #fff; font-weight: 500; margin-bottom: 6px; }
+        .bill-row.sub { font-size: 0.75rem; color: #555; font-family: monospace; margin-bottom: 8px; justify-content: flex-end; }
         
-        .divider { height: 1px; background: #222; margin: 6px 0; width: 100%; }
+        .divider { height: 1px; background: #222; margin: 8px 0; width: 100%; }
         .red { color: var(--danger); }
         .hl { color: #fff; font-weight: 500; }
 
-        /* --- UNTEN: PROFIT --- */
-        .profit-section {
-            background-color: #101010;
-            border-top: 1px solid #2a2a2a;
-            padding: 15px 20px 20px 20px;
+
+        /* --- 3. FOOTER: PROFIT (Unten Fixiert) --- */
+        .footer {
+            background: #111; /* Leicht abgesetzt */
+            border-top: 1px solid #222;
+            padding: 20px 25px max(20px, env(safe-area-inset-bottom)) 25px;
+            flex-shrink: 0;
         }
 
-        .p-grid { display: flex; justify-content: space-between; margin-bottom: 12px; }
-        .p-item { font-size: 0.75rem; color: #666; display: flex; flex-direction: column; }
-        .p-item span:last-child { color: #ccc; font-size: 0.9rem; font-weight: 500; margin-top: 2px; }
+        .f-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .f-item { display: flex; flex-direction: column; }
+        .f-title { font-size: 0.75rem; color: #666; margin-bottom: 4px; }
+        .f-num { font-size: 1rem; color: #ddd; font-weight: 500; }
 
-        .p-final {
+        .f-total {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid #252525;
-            padding-top: 12px;
+            padding-top: 15px;
+            border-top: 1px solid #2a2a2a;
         }
-        .p-lbl { font-size: 0.9rem; font-weight: 600; color: #fff; }
-        .p-val { 
-            font-size: 1.4rem; 
+        .t-lbl { font-size: 1rem; font-weight: 600; color: #fff; }
+        .t-val { 
+            font-size: 1.8rem; 
             font-weight: 700; 
             color: var(--success); 
             letter-spacing: -0.5px;
@@ -240,14 +240,14 @@
 </head>
 <body>
 
-    <div class="main-card">
+    <div class="app-wrapper">
         
-        <div class="header-section">
-            <h1>Ebay Kalkulator</h1>
+        <div class="header">
+            <h1>Kalkulator</h1>
             
-            <div class="input-grid">
+            <div class="grid">
                 <div class="field">
-                    <input type="text" id="itemName" placeholder="Produktname..." autocomplete="off" style="padding-top:0; padding-left:12px;">
+                    <input type="text" id="itemName" placeholder="Artikelname..." autocomplete="off" style="padding-top:0; padding-left:14px;">
                 </div>
 
                 <div id="catBar" class="cat-bar">
@@ -284,67 +284,67 @@
                     </div>
                     
                     <label class="toggle-btn">
-                        <span class="toggle-txt">Kostenloser<br>Versand</span>
+                        <span class="toggle-label">Kostenloser<br>Versand</span>
                         <input type="checkbox" id="freeShipToggle">
-                        <div class="toggle-visual"></div>
+                        <div class="switch-ui"></div>
                     </label>
                 </div>
 
             </div>
         </div>
 
-        <div class="calc-section">
-            <div class="line head">
+        <div class="content">
+            <div class="bill-row head">
                 <span>Gebührengrundlage</span>
                 <span id="lblBasis" style="text-decoration:underline;">0,00 €</span>
             </div>
             
             <div class="divider"></div>
 
-            <div class="line">
+            <div class="bill-row">
                 <span>Provision (Var)</span>
                 <span class="red" id="lblVarFee">0,00 €</span>
             </div>
-            <div class="line sub" id="lblCalcVar">0 € x 0%</div>
+            <div class="bill-row sub" id="lblCalcVar">0 € x 0%</div>
 
-            <div class="line">
+            <div class="bill-row">
                 <span>Provision (Fix)</span>
                 <span class="red">- 0,35 €</span>
             </div>
             
-            <div class="line" style="color:#777; font-size:0.75rem;">
+            <div class="bill-row" style="color:#666; font-size:0.8rem;">
                 <span>MwSt (19%) auf Prov.</span>
                 <span class="red" id="lblVat">0,00 €</span>
             </div>
 
-            <div class="line hl" style="margin-top:2px;">
+            <div class="bill-row hl" style="margin-top:4px;">
                 <span>Zwischensumme</span>
                 <span class="red" id="lblProvGross">0,00 €</span>
             </div>
 
-            <div id="rowAd" style="display:none; flex-direction:column; margin-top:2px;">
+            <div id="rowAd" style="display:none; flex-direction:column; margin-top:4px;">
                 <div class="divider"></div>
-                <div class="line" style="color: #ffab40;">
+                <div class="bill-row" style="color: #ffab40;">
                     <span>Anzeigegebühr (Brutto)</span>
                     <span id="lblAdGross">0,00 €</span>
                 </div>
             </div>
         </div>
 
-        <div class="profit-section">
-            <div class="p-grid">
-                <div class="p-item">
-                    <span>Erlös (Payout)</span>
-                    <span id="lblPayout">0,00 €</span>
+        <div class="footer">
+            <div class="f-grid">
+                <div class="f-item">
+                    <span class="f-title">Verkaufserlös (Payout)</span>
+                    <span class="f-num" id="lblPayout">0,00 €</span>
                 </div>
-                <div class="p-item" style="align-items: flex-end;">
-                    <span>Abzug (Ware+Label)</span>
-                    <span class="red" id="lblCostTotal">0,00 €</span>
+                <div class="f-item" style="align-items: flex-end;">
+                    <span class="f-title">Abzug (Ware+Label)</span>
+                    <span class="f-num red" id="lblCostTotal">0,00 €</span>
                 </div>
             </div>
-            <div class="p-final">
-                <span class="p-lbl">Reingewinn</span>
-                <span class="p-val" id="lblProfit">0,00 €</span>
+            <div class="f-total">
+                <span class="t-lbl">Reingewinn</span>
+                <span class="t-val" id="lblProfit">0,00 €</span>
             </div>
         </div>
 
@@ -395,15 +395,11 @@
 
         toggleFreeShip.addEventListener('change', () => {
             if(toggleFreeShip.checked) {
-                // Kostenlos AN: Feld leeren/nullen und deaktivieren
                 inpShipCharged.value = "";
                 inpShipCharged.placeholder = "Kostenlos";
                 inpShipCharged.disabled = true;
-                
-                // Fokus auf Label-Kosten
                 inpShipCost.focus();
             } else {
-                // Kostenlos AUS: Aktivieren
                 inpShipCharged.disabled = false;
                 inpShipCharged.placeholder = "0";
             }
@@ -414,13 +410,11 @@
             const nameTxt = itemName.value.toLowerCase();
             const price = parseFloat(document.getElementById('price').value) || 0;
             const cost = parseFloat(document.getElementById('cost').value) || 0;
-            
-            // Wenn Kostenlos AN -> Einnahme 0.
             const shipInc = toggleFreeShip.checked ? 0 : (parseFloat(inpShipCharged.value) || 0);
             const shipExp = parseFloat(inpShipCost.value) || 0;
             const adRate = parseFloat(document.getElementById('adRate').value) || 0;
 
-            // 1. KATEGORIE
+            // KATEGORIE
             let rate = 11.0; 
             let cName = "Standard";
             if(nameTxt.length > 2) {
@@ -438,7 +432,7 @@
                 catBar.classList.remove('active');
             }
 
-            // 2. RECHNUNG
+            // RECHNUNG
             const basis = price + shipInc;
 
             // Provision
@@ -453,7 +447,6 @@
                 const adNet = basis * (adRate / 100);
                 const adVat = adNet * 0.19;
                 adFeeGross = adNet + adVat;
-                
                 rowAd.style.display = 'flex';
                 uiAdGross.innerText = "- " + fmt(adFeeGross);
             } else {
@@ -464,7 +457,7 @@
             const payout = basis - provGross - adFeeGross;
             const profit = payout - cost - shipExp;
 
-            // 3. UI UPDATE
+            // OUTPUT
             uiBasis.innerText = fmt(basis);
             uiVarFee.innerText = "- " + fmt(varFee);
             uiCalcVar.innerText = `${fmt(basis)} x ${rate}%`;
