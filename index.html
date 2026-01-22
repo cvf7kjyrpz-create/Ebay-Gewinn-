@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Profit Calculator</title>
+    <title>Smart Profit Calculator Ultimate</title>
     <style>
         /* --- MODERN DARK THEME CSS --- */
         :root {
@@ -16,6 +16,7 @@
             --accent-dim: rgba(0, 229, 255, 0.1);
             --border: #2a2a2e;
             --success: #00ff9d;
+            --danger: #ff5252;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
@@ -34,7 +35,7 @@
         .calculator-card {
             background-color: var(--bg-card);
             width: 100%;
-            max-width: 480px;
+            max-width: 500px;
             border-radius: 20px;
             padding: 32px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
@@ -48,12 +49,20 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-align: center;
         }
 
         /* Input Group Styling */
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             position: relative;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
         }
 
         .input-group label {
@@ -71,7 +80,7 @@
             background-color: var(--bg-input);
             border: 1px solid var(--border);
             color: #fff;
-            padding: 16px;
+            padding: 14px;
             border-radius: 12px;
             font-size: 1rem;
             transition: all 0.3s ease;
@@ -93,7 +102,7 @@
             border-radius: 8px;
             margin-top: 8px;
             font-size: 0.85rem;
-            opacity: 0; /* Hidden by default */
+            opacity: 0;
             transform: translateY(-10px);
             transition: all 0.3s ease;
         }
@@ -116,14 +125,18 @@
         .result-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
             color: var(--text-muted);
         }
 
+        .result-row.deduction span:last-child {
+            color: var(--danger);
+        }
+
         .result-row span:last-child {
-            color: var(--text-main);
             font-family: 'Courier New', monospace;
+            font-weight: 600;
         }
 
         .result-total {
@@ -144,16 +157,15 @@
             font-size: 1.8rem;
             font-weight: 700;
             color: var(--success);
-            text-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+            text-shadow: 0 0 20px rgba(0, 255, 157, 0.1);
             font-family: 'Courier New', monospace;
         }
-
     </style>
 </head>
 <body>
 
     <div class="calculator-card">
-        <h1>Profit Rechner</h1>
+        <h1>Profit Kalkulator</h1>
 
         <div class="input-group">
             <label>Was verkaufst du?</label>
@@ -165,33 +177,54 @@
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="grid-row">
             <div class="input-group">
                 <label>Verkaufspreis (€)</label>
                 <input type="number" id="price" placeholder="0.00" step="0.01">
             </div>
             <div class="input-group">
-                <label>Versandkosten (€)</label>
+                <label>Einkaufspreis (€)</label>
+                <input type="number" id="purchasePrice" placeholder="0.00" step="0.01">
+            </div>
+        </div>
+
+        <div class="grid-row">
+            <div class="input-group">
+                <label>Dein Versand (€)</label>
                 <input type="number" id="shipping" placeholder="0.00" step="0.01">
+            </div>
+            
+            <div class="input-group">
+                <label>Anzeigegebühr (%)</label>
+                <input type="number" id="adFeePercent" placeholder="z.B. 2" step="0.1">
             </div>
         </div>
 
         <div class="result-area">
             <div class="result-row">
-                <span>Brutto Umsatz</span>
-                <span id="displayRevenue">0,00 €</span>
+                <span>Brutto Verkauf</span>
+                <span id="displayRevenue" style="color: #fff;">0,00 €</span>
             </div>
-            <div class="result-row">
-                <span>- Abzug (Steuer/Gebühr)</span>
-                <span id="displayTax" style="color: #ff5252;">0,00 €</span>
+            
+            <div class="result-row deduction">
+                <span>- Kat.-Abzug / Steuer</span>
+                <span id="displayTax">0,00 €</span>
             </div>
-            <div class="result-row">
-                <span>- Dein Versandaufwand</span>
-                <span id="displayShipping" style="color: #ff5252;">0,00 €</span>
+            <div class="result-row deduction" id="rowAdFee" style="display:none;">
+                <span>- Anzeigegebühr (<span id="lblAdPercent">0</span>%)</span>
+                <span id="displayAdFee">0,00 €</span>
+            </div>
+            <div class="result-row deduction">
+                <span>- Versandkosten</span>
+                <span id="displayShipping">0,00 €</span>
+            </div>
+            <div class="result-row deduction" style="border-bottom: 1px solid #2a2a2e; padding-bottom:10px; margin-bottom:10px;">
+                <span>- Wareneinsatz (Einkauf)</span>
+                <span id="displayPurchase">0,00 €</span>
             </div>
 
             <div class="result-total">
-                <span class="label">Gewinn (Netto)</span>
+                <span class="label">Reingewinn</span>
                 <span class="value" id="displayProfit">0,00 €</span>
             </div>
         </div>
@@ -199,42 +232,43 @@
 
     <script>
         // --- KONFIGURATION DER KATEGORIEN ---
-        // Hier definieren wir Schlüsselwörter und deren Prozentsätze
         const categories = [
             { 
                 name: "Bekleidung & Schuhe", 
-                keywords: ["schuh", "sneaker", "hose", "shirt", "jacke", "kleid", "nike", "adidas"], 
-                percent: 19 // Standardsteuersatz oder Gebühr
+                keywords: ["schuh", "sneaker", "hose", "shirt", "jacke", "kleid", "nike", "adidas", "stiefel"], 
+                percent: 19 
             },
             { 
                 name: "Elektronik & Tech", 
-                keywords: ["iphone", "handy", "laptop", "kabel", "computer", "samsung", "tv", "audio"], 
+                keywords: ["iphone", "handy", "laptop", "kabel", "computer", "samsung", "tv", "audio", "kamera"], 
                 percent: 19 
             },
             { 
                 name: "Bücher & Medien", 
-                keywords: ["buch", "roman", "zeitung", "zeitschrift", "magazin", "comic"], 
-                percent: 7 // Ermäßigter Satz
+                keywords: ["buch", "roman", "zeitung", "zeitschrift", "magazin", "comic", "manga"], 
+                percent: 7 
             },
             { 
                 name: "Lebensmittel", 
-                keywords: ["essen", "trinken", "schokolade", "kaffee", "tee"], 
+                keywords: ["essen", "trinken", "schokolade", "kaffee", "tee", "wein"], 
                 percent: 7 
             },
             {
                 name: "Sammlerstücke (Luxus)",
-                keywords: ["uhr", "gold", "schmuck", "rolex", "antik"],
-                percent: 25 // Beispiel für höhere Sonderabgabe
+                keywords: ["uhr", "gold", "schmuck", "rolex", "antik", "diamant"],
+                percent: 25 
             }
         ];
 
-        const defaultRate = 19; // Fallback, falls nichts erkannt wird
+        const defaultRate = 19; 
 
         // DOM Elemente
         const inputs = document.querySelectorAll('input');
         const itemNameInput = document.getElementById('itemName');
         const priceInput = document.getElementById('price');
+        const purchasePriceInput = document.getElementById('purchasePrice');
         const shippingInput = document.getElementById('shipping');
+        const adFeePercentInput = document.getElementById('adFeePercent');
         
         const catBadge = document.getElementById('categoryBadge');
         const catNameEl = document.getElementById('catName');
@@ -242,23 +276,27 @@
 
         const displayRevenue = document.getElementById('displayRevenue');
         const displayTax = document.getElementById('displayTax');
+        const rowAdFee = document.getElementById('rowAdFee');
+        const lblAdPercent = document.getElementById('lblAdPercent');
+        const displayAdFee = document.getElementById('displayAdFee');
         const displayShipping = document.getElementById('displayShipping');
+        const displayPurchase = document.getElementById('displayPurchase');
         const displayProfit = document.getElementById('displayProfit');
 
-        // Funktion zum Formatieren von Währung
         const formatMoney = (num) => {
             return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(num);
         };
 
-        // Haupt-Logik
         function calculate() {
             const text = itemNameInput.value.toLowerCase();
-            const price = parseFloat(priceInput.value) || 0;
+            const sellingPrice = parseFloat(priceInput.value) || 0;
+            const purchasePrice = parseFloat(purchasePriceInput.value) || 0;
             const shipping = parseFloat(shippingInput.value) || 0;
+            const adFeePercent = parseFloat(adFeePercentInput.value) || 0;
 
             // 1. Kategorie erkennen
             let currentRate = defaultRate;
-            let currentCatName = "Standard (Sonstiges)";
+            let currentCatName = "Standard";
             let matchFound = false;
 
             if (text.length > 2) {
@@ -277,42 +315,52 @@
                 catBadge.classList.add('active');
                 catNameEl.innerText = currentCatName;
                 catRateEl.innerText = currentRate + "%";
-                if(matchFound) {
-                    catNameEl.style.color = "var(--success)";
-                } else {
-                    catNameEl.style.color = "var(--text-muted)";
-                }
+                catNameEl.style.color = matchFound ? "var(--success)" : "var(--text-muted)";
             } else {
                 catBadge.classList.remove('active');
             }
 
             // 2. Berechnungen
-            // Logik: Wir ziehen den Prozentsatz vom Verkaufspreis ab
-            // Formel für Herausrechnen der Steuer: Preis / (1 + Satz/100) -> Differenz ist die Steuer
-            // ODER: Formel für Gebühr: Preis * (Satz/100)
             
-            // Ich nutze hier die "Steuer herausrechnen" Logik (Netto vom Brutto trennen)
-            // Wenn du reine Gebühren (on top) meinst, müsste man die Formel ändern.
+            // Steuer/Kategorie-Abzug (Herausrechnen aus Brutto)
+            const taxAmount = sellingPrice - (sellingPrice / (1 + (currentRate / 100))); 
             
-            const taxAmount = price - (price / (1 + (currentRate / 100))); 
-            
-            const profit = price - taxAmount - shipping;
+            // Anzeigegebühr (Variable Prozent vom Brutto-Verkaufspreis)
+            let adFeeAmount = 0;
+            if (adFeePercent > 0) {
+                adFeeAmount = sellingPrice * (adFeePercent / 100);
+                rowAdFee.style.display = 'flex';
+                lblAdPercent.innerText = adFeePercent; // Zeige aktuellen Prozentwert im Label an
+            } else {
+                rowAdFee.style.display = 'none';
+            }
+
+            // Reingewinn Formel
+            const profit = sellingPrice - taxAmount - shipping - adFeeAmount - purchasePrice;
 
             // 3. Ausgabe aktualisieren
-            displayRevenue.innerText = formatMoney(price);
+            displayRevenue.innerText = formatMoney(sellingPrice);
             displayTax.innerText = "- " + formatMoney(taxAmount);
+            displayAdFee.innerText = "- " + formatMoney(adFeeAmount);
             displayShipping.innerText = "- " + formatMoney(shipping);
+            displayPurchase.innerText = "- " + formatMoney(purchasePrice);
+            
             displayProfit.innerText = formatMoney(profit);
             
-            // Färbung bei Verlust
-            if (profit < 0) {
-                displayProfit.style.color = "#ff5252";
-            } else {
+            // Farb-Logik für Gewinn/Verlust
+            if (profit > 0) {
                 displayProfit.style.color = "var(--success)";
+                displayProfit.style.textShadow = "0 0 20px rgba(0, 255, 157, 0.2)";
+            } else if (profit < 0) {
+                displayProfit.style.color = "var(--danger)";
+                displayProfit.style.textShadow = "0 0 20px rgba(255, 82, 82, 0.2)";
+            } else {
+                displayProfit.style.color = "var(--text-muted)";
+                displayProfit.style.textShadow = "none";
             }
         }
 
-        // Event Listener hinzufügen
+        // Event Listeners für alle Inputs
         inputs.forEach(input => {
             input.addEventListener('input', calculate);
         });
