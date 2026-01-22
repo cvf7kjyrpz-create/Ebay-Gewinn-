@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>eBay Gebühren Rechner</title>
+    <title>eBay Profit Rechner Pro</title>
     <style>
         /* --- CORE STYLE: STARRES LAYOUT (FIXED) --- */
         :root {
@@ -14,8 +14,8 @@
             --text-muted: #959595;
             --accent: #3665f3; /* eBay Blue */
             --border: #2a2a2b;
-            --danger: #ff453a; /* iOS Red */
-            --success: #32d74b; /* iOS Green */
+            --danger: #ff453a;
+            --success: #32d74b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -26,7 +26,7 @@
             color: var(--text-main);
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* Kein Scrollen */
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -38,7 +38,7 @@
             max-width: 600px;
             display: flex;
             flex-direction: column;
-            padding: 16px; /* Etwas weniger Padding für mehr Platz */
+            padding: 16px;
             background-color: var(--bg-body);
         }
 
@@ -56,7 +56,7 @@
             flex: 0 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 15px;
         }
 
@@ -74,7 +74,7 @@
             display: block;
             font-size: 0.65rem;
             color: var(--text-muted);
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             text-transform: uppercase;
             font-weight: 600;
         }
@@ -86,7 +86,7 @@
             color: white;
             padding: 12px;
             border-radius: 8px;
-            font-size: 16px; /* Verhindert iOS Zoom */
+            font-size: 16px; 
             font-weight: 500;
             transition: 0.2s;
         }
@@ -94,6 +94,12 @@
         input:focus {
             background-color: #2f2f32;
             border-color: var(--text-muted);
+        }
+        
+        input:disabled {
+            opacity: 0.3;
+            background-color: #1a1a1a;
+            border-color: transparent;
         }
 
         /* Kategorie Badge */
@@ -111,6 +117,54 @@
             transition: opacity 0.3s;
         }
         .cat-badge.visible { opacity: 1; }
+
+        /* --- TOGGLE SWITCH FÜR FREE SHIPPING --- */
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: -5px; /* Etwas näher an die Inputs ran */
+        }
+
+        .toggle-label {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input { display: none; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(16px); }
 
         /* --- ERGEBNIS BEREICH --- */
         .result-card {
@@ -183,7 +237,7 @@
 <body>
 
     <div class="app-container">
-        <h1>eBay Gebühren & Profit</h1>
+        <h1>eBay Profit & Gebühren</h1>
 
         <div class="input-section">
             <div class="input-group">
@@ -198,18 +252,26 @@
                     <input type="number" id="price" placeholder="0" inputmode="decimal">
                 </div>
                 <div class="input-group">
-                    <label>Versand (Einnahme)</label>
-                    <input type="number" id="shippingCharged" placeholder="0" inputmode="decimal">
+                    <label>Mein Einkauf (€)</label>
+                    <input type="number" id="cost" placeholder="0" inputmode="decimal">
                 </div>
+            </div>
+
+            <div class="toggle-wrapper">
+                <span class="toggle-label">Kostenloser Versand?</span>
+                <label class="switch">
+                    <input type="checkbox" id="freeShipToggle">
+                    <span class="slider"></span>
+                </label>
             </div>
 
             <div class="input-row">
                 <div class="input-group">
-                    <label>Mein Einkauf (€)</label>
-                    <input type="number" id="cost" placeholder="0" inputmode="decimal">
+                    <label>Versand (Kunde zahlt)</label>
+                    <input type="number" id="shippingCharged" placeholder="0" inputmode="decimal">
                 </div>
                 <div class="input-group">
-                    <label>Versand (Kosten/Label)</label>
+                    <label>Versand (Mein Label)</label>
                     <input type="number" id="shippingCost" placeholder="0" inputmode="decimal" style="color: #ffaa9d;">
                 </div>
             </div>
@@ -219,8 +281,7 @@
                     <label>Anzeige (%) (Optional)</label>
                     <input type="number" id="adRate" placeholder="0" inputmode="decimal">
                 </div>
-                <div class="input-group" style="visibility: hidden;">
-                     </div>
+                <div class="input-group" style="visibility: hidden;"></div>
             </div>
         </div>
 
@@ -269,9 +330,6 @@
 
     <script>
         // --- KONFIGURATION (eBay DE) ---
-        // Haix (Business & Industrie) = 11% (bis 990€)
-        // Sneaker (Mode) = 12%
-        // Technik = 6.5% - 11%
         const categories = [
             { name: "Business & Ind.", rate: 11.0, keys: ["haix", "arbeit", "industrie", "werkzeug"] },
             { name: "Elektronik", rate: 6.5, keys: ["handy", "iphone", "samsung", "laptop", "pc"] },
@@ -287,6 +345,7 @@
         const inputs = document.querySelectorAll('input');
         const inpShipCharged = document.getElementById('shippingCharged');
         const inpShipCost = document.getElementById('shippingCost');
+        const toggleFreeShip = document.getElementById('freeShipToggle');
         
         const uiBasis = document.getElementById('lblBasis');
         const uiVarFee = document.getElementById('lblVarFee');
@@ -300,25 +359,42 @@
 
         const fmt = (num) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(num);
 
-        // Smart Feature: Versandkosten automatisch füllen
+        // --- EVENTS ---
+        
+        // 1. Auto-Fill für Versandkosten (nur wenn Free Ship AUS ist)
         inpShipCharged.addEventListener('input', () => {
-            // Nur automatisch setzen, wenn der User nichts Eigenes bei "Kosten" eingetragen hat 
-            // oder wenn es leer ist.
-            if(document.activeElement === inpShipCharged) {
+            if(!toggleFreeShip.checked && document.activeElement === inpShipCharged) {
                 inpShipCost.value = inpShipCharged.value;
                 calculate();
             }
         });
 
+        // 2. Toggle Logik
+        toggleFreeShip.addEventListener('change', () => {
+            if(toggleFreeShip.checked) {
+                // Free Shipping AN: Kunde zahlt 0, Feld sperren
+                inpShipCharged.value = 0;
+                inpShipCharged.disabled = true;
+                // Focus aufs Label Feld setzen, weil User das jetzt eingeben muss
+                inpShipCost.focus();
+            } else {
+                // Free Shipping AUS: Feld freigeben
+                inpShipCharged.disabled = false;
+            }
+            calculate();
+        });
+
         function calculate() {
             const name = document.getElementById('itemName').value.toLowerCase();
             const price = parseFloat(document.getElementById('price').value) || 0;
-            const shipIncome = parseFloat(inpShipCharged.value) || 0;
+            // Wenn Free Ship an ist, ist Einnahme 0, sonst Input Wert
+            const shipIncome = toggleFreeShip.checked ? 0 : (parseFloat(inpShipCharged.value) || 0);
+            
             const itemCost = parseFloat(document.getElementById('cost').value) || 0;
             const labelCost = parseFloat(inpShipCost.value) || 0;
             const adPercent = parseFloat(document.getElementById('adRate').value) || 0;
 
-            // 1. Kategorie
+            // Kategorie
             let currentRate = defaultRate;
             let catName = "Sonstige";
             for (let cat of categories) {
@@ -337,8 +413,8 @@
                 uiCatBadge.classList.remove('visible');
             }
 
-            // 2. Berechnung
-            const basis = price + shipIncome; // Worauf eBay Gebühren erhebt
+            // BERECHNUNG
+            const basis = price + shipIncome; // Bei Free Ship ist Basis = Preis
 
             // Gebühren (Netto)
             const varFee = basis * (currentRate / 100);
@@ -349,11 +425,10 @@
             const vat = totalNet * vatRate;
             const totalGross = totalNet + vat;
 
-            // REINGEWINN FORMEL:
-            // (Preis + VersandEinnahme) - GebührenBrutto - ArtikelEinkauf - VersandLabelKosten
+            // Profit = (Preis + VersandEinnahme) - Gebühren - Einkauf - VersandAusgabe
             const profit = basis - totalGross - itemCost - labelCost;
 
-            // 3. UI Update
+            // UI Update
             uiBasis.innerText = fmt(basis);
             uiVarFee.innerText = "- " + fmt(varFee);
             uiVarText.innerText = `${currentRate}% (${catName})`;
@@ -366,8 +441,6 @@
             }
 
             uiTotalGross.innerText = "- " + fmt(totalGross);
-            
-            // Zeige die Versandkosten auch im Rechenweg an, damit man es versteht
             uiShipCostDisplay.innerText = "- " + fmt(labelCost);
             
             uiProfit.innerText = fmt(profit);
