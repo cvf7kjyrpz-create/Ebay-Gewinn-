@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>eBay Compact Ultimate</title>
+    <title>eBay Profit Calc Final</title>
     <style>
-        /* --- CORE VARS --- */
+        /* --- MODERN DARK THEME --- */
         :root {
             --bg-body: #000000;
             --card-bg: #151516;
-            --input-bg: #252527;
+            --input-bg: #262628;
             --text-main: #ffffff;
             --text-muted: #8e8e93;
             --accent: #0a84ff;
@@ -29,56 +29,76 @@
             width: 100vw;
             display: flex;
             justify-content: center;
-            align-items: center; /* Zentriert die Karte vertikal */
+            align-items: center; /* Zentriert die Karte mittig */
             overflow: hidden;
         }
 
-        /* --- HAUPT KARTE (Alles drin) --- */
+        /* --- HAUPTKARTE --- */
         .main-card {
             background-color: var(--card-bg);
-            width: 95%;
-            max-width: 400px;
-            border-radius: 20px;
+            width: 92%;
+            max-width: 380px; /* Schön kompakt */
+            border-radius: 22px;
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            /* Maximalhöhe damit es auf kleinen Screens nicht platzt */
-            max-height: 95vh; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            overflow: hidden; /* Damit nichts übersteht */
         }
 
-        /* --- HEADER / INPUTS --- */
+        /* --- HEADER & INPUTS --- */
         .header-section {
-            padding: 15px 15px 5px 15px;
+            padding: 18px 18px 5px 18px;
+            background: var(--card-bg);
         }
 
         h1 {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-align: center;
             color: #555;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+        }
+
+        /* KATEGORIE LEISTE (Animiert) */
+        .cat-bar {
+            background: var(--accent-dim);
+            border: 1px solid rgba(10, 132, 255, 0.25);
+            border-radius: 8px;
+            padding: 0 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 600;
+            height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .cat-bar.active {
+            height: 34px;
             margin-bottom: 10px;
+            opacity: 1;
         }
 
-        .input-grid {
-            display: grid;
-            gap: 8px;
-        }
+        /* INPUT GRID */
+        .input-grid { display: flex; flex-direction: column; gap: 10px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-        /* Inputs Style */
         .field { position: relative; }
         
         label {
             position: absolute;
-            top: 3px;
-            left: 8px;
-            font-size: 0.55rem;
+            top: 6px;
+            left: 10px;
+            font-size: 0.6rem;
             color: #777;
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: 700;
             pointer-events: none;
             z-index: 2;
         }
@@ -88,109 +108,89 @@
             background-color: var(--input-bg);
             border: 1px solid transparent;
             color: #fff;
-            border-radius: 8px;
-            padding: 14px 8px 4px 8px; /* Platz für Label oben */
-            font-size: 15px; 
+            border-radius: 10px;
+            padding: 18px 10px 6px 10px; /* Platz für Label */
+            font-size: 16px; 
             font-weight: 500;
             text-align: right;
-            height: 38px;
+            height: 44px; /* Touch-freundliche Höhe */
             transition: 0.2s;
         }
-        input:focus { background-color: #303033; border-color: #444; outline: none; }
-        input[type="text"] { text-align: left; padding-left: 8px; }
-
-        /* KATEGORIE LEISTE (Wieder da!) */
-        .cat-bar {
-            background: var(--accent-dim);
-            border: 1px solid rgba(10, 132, 255, 0.2);
-            border-radius: 6px;
-            padding: 0 10px;
-            margin-bottom: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--accent);
-            font-size: 0.75rem;
-            font-weight: 600;
-            
-            /* Animation */
-            height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        .cat-bar.active {
-            height: 32px;
-            margin-bottom: 4px;
-            opacity: 1;
+        input:focus { background-color: #303033; border-color: #555; outline: none; }
+        input[type="text"] { text-align: left; padding-left: 10px; }
+        
+        /* Disabled State (Ausgegraut) */
+        input:disabled {
+            opacity: 0.4;
+            background-color: #1a1a1c;
+            color: #aaa;
+            border-color: #222;
         }
 
-        /* Toggle Switch Compact */
+        /* Toggle Switch Wrapper */
         .switch-wrap {
             background: var(--input-bg);
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 6px;
-            height: 38px;
+            padding: 0 8px;
+            height: 44px;
         }
-        .sw-lbl { font-size: 0.65rem; color: #aaa; font-weight: 600; }
-        .switch { position: relative; width: 32px; height: 18px; }
+        .sw-lbl { font-size: 0.65rem; color: #aaa; font-weight: 600; line-height: 1.1; }
+        .switch { position: relative; width: 36px; height: 20px; }
         .switch input { display: none; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; border-radius: 20px; transition: .3s; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .3s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .3s; }
         input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(14px); }
+        input:checked + .slider:before { transform: translateX(16px); }
 
 
-        /* --- MIDDLE: RECHNUNG --- */
+        /* --- MITTE: RECHNUNG --- */
         .calc-section {
-            padding: 10px 20px;
+            padding: 15px 20px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            /* Scrollbar falls Screen zu klein */
-            overflow-y: auto;
-            flex: 1; 
+            gap: 4px;
+            flex: 1; /* Nimmt restlichen Platz */
+            justify-content: center; /* Vertikal mittig */
         }
 
         .line {
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #888;
-            padding: 1px 0;
+            padding: 2px 0;
         }
-        .line.head { color: #ddd; font-weight: 500; margin-bottom: 2px; }
-        .line.sub { font-size: 0.7rem; color: #555; font-family: monospace; margin-bottom: 4px; justify-content: flex-end; }
+        .line.head { color: #fff; font-weight: 500; margin-bottom: 4px; }
+        .line.sub { font-size: 0.7rem; color: #555; font-family: monospace; margin-bottom: 6px; justify-content: flex-end; }
         
-        .divider { height: 1px; background: #222; margin: 4px 0; width: 100%; }
+        .divider { height: 1px; background: #222; margin: 6px 0; width: 100%; }
         .red { color: var(--danger); }
+        .hl { color: #fff; font-weight: 500; }
 
-        /* --- FOOTER: PROFIT --- */
+        /* --- UNTEN: PROFIT --- */
         .profit-section {
             background-color: #101010;
-            border-top: 1px solid var(--border);
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            padding: 12px 20px;
+            border-top: 1px solid #2a2a2a;
+            padding: 15px 20px 20px 20px;
         }
 
-        .p-grid { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .p-item { font-size: 0.7rem; color: #666; display: flex; flex-direction: column; }
-        .p-item span:last-child { color: #ccc; font-size: 0.85rem; font-weight: 500; margin-top: 1px; }
+        .p-grid { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .p-item { font-size: 0.75rem; color: #666; display: flex; flex-direction: column; }
+        .p-item span:last-child { color: #ccc; font-size: 0.9rem; font-weight: 500; margin-top: 2px; }
 
         .p-final {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid #2a2a2a;
-            padding-top: 8px;
+            border-top: 1px solid #252525;
+            padding-top: 12px;
         }
-        .p-lbl { font-size: 0.85rem; font-weight: 600; color: #fff; }
+        .p-lbl { font-size: 0.9rem; font-weight: 600; color: #fff; }
         .p-val { 
-            font-size: 1.4rem; /* Kleiner als vorher */
+            font-size: 1.6rem; 
             font-weight: 700; 
             color: var(--success); 
             letter-spacing: -0.5px;
@@ -203,11 +203,11 @@
     <div class="main-card">
         
         <div class="header-section">
-            <h1>Kalkulator</h1>
+            <h1>Ebay Kalkulator</h1>
             
             <div class="input-grid">
                 <div class="field">
-                    <input type="text" id="itemName" placeholder="Produktname..." autocomplete="off" style="padding-top:0; padding-left:10px;">
+                    <input type="text" id="itemName" placeholder="Produktname..." autocomplete="off" style="padding-top:0; padding-left:12px;">
                 </div>
 
                 <div id="catBar" class="cat-bar">
@@ -217,22 +217,22 @@
 
                 <div class="row">
                     <div class="field">
-                        <label>Verkauf €</label>
+                        <label>Verkauft für €</label>
                         <input type="number" id="price" placeholder="0" inputmode="decimal">
                     </div>
                     <div class="field">
-                        <label>Einkauf €</label>
+                        <label>Gekauft für €</label>
                         <input type="number" id="cost" placeholder="0" inputmode="decimal">
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="field">
-                        <label>Kunde zahlt</label>
+                        <label>Versand (Kunde)</label>
                         <input type="number" id="shipCharged" placeholder="0" inputmode="decimal">
                     </div>
                     <div class="field">
-                        <label>Versandkosten</label>
+                        <label>Versand (Label)</label>
                         <input type="number" id="shipCost" placeholder="0" inputmode="decimal" style="color: #ffaa9d;">
                     </div>
                 </div>
@@ -243,7 +243,7 @@
                         <input type="number" id="adRate" placeholder="0" inputmode="decimal">
                     </div>
                     <div class="switch-wrap">
-                        <span class="sw-lbl">Kostenloser V.</span>
+                        <span class="sw-lbl">Kostenloser<br>Versand</span>
                         <label class="switch">
                             <input type="checkbox" id="freeShipToggle">
                             <span class="slider"></span>
@@ -255,7 +255,7 @@
 
         <div class="calc-section">
             <div class="line head">
-                <span>Basiswert</span>
+                <span>Gebührengrundlage</span>
                 <span id="lblBasis" style="text-decoration:underline;">0,00 €</span>
             </div>
             
@@ -272,12 +272,12 @@
                 <span class="red">- 0,35 €</span>
             </div>
             
-            <div class="line" style="color:#aaa; font-size:0.75rem;">
+            <div class="line" style="color:#777; font-size:0.75rem;">
                 <span>MwSt (19%) auf Prov.</span>
                 <span class="red" id="lblVat">0,00 €</span>
             </div>
 
-            <div class="line" style="color:#fff; font-weight:500; margin-top:2px;">
+            <div class="line hl" style="margin-top:2px;">
                 <span>Zwischensumme</span>
                 <span class="red" id="lblProvGross">0,00 €</span>
             </div>
@@ -298,7 +298,7 @@
                     <span id="lblPayout">0,00 €</span>
                 </div>
                 <div class="p-item" style="align-items: flex-end;">
-                    <span>Abzüge (Ware+Versand)</span>
+                    <span>Abzug (Ware+Label)</span>
                     <span class="red" id="lblCostTotal">0,00 €</span>
                 </div>
             </div>
@@ -311,7 +311,7 @@
     </div>
 
     <script>
-        // --- LOGIC ---
+        // --- LOGIK ---
         const categories = [
             { name: "Business", rate: 11.0, keys: ["sodapop", "flasche", "haix", "set", "pack", "werkzeug"] },
             { name: "Elektronik", rate: 6.5, keys: ["handy", "iphone", "samsung", "laptop", "pc", "kabel"] },
@@ -343,9 +343,12 @@
 
         const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n);
 
-        // --- HANDLER ---
+        // --- EVENTS ---
+        
+        // Auto-Fill nur wenn Kostenlos AUS ist
         inpShipCharged.addEventListener('input', () => {
             if(!toggleFreeShip.checked && document.activeElement === inpShipCharged) {
+                // Wenn User links tippt, übernehme es rechts als Vorschlag (User kann es ändern)
                 inpShipCost.value = inpShipCharged.value;
                 calculate();
             }
@@ -353,11 +356,16 @@
 
         toggleFreeShip.addEventListener('change', () => {
             if(toggleFreeShip.checked) {
+                // Kostenlos AN: Kunde zahlt 0
                 inpShipCharged.value = 0;
-                inpShipCharged.disabled = true;
+                inpShipCharged.disabled = true; // Ausgegraut
+                
+                // Fokus auf Label-Kosten (User MUSS das jetzt ausfüllen)
                 inpShipCost.focus();
             } else {
+                // Kostenlos AUS: Normal
                 inpShipCharged.disabled = false;
+                inpShipCharged.value = ""; // Reset oder alter Wert
             }
             calculate();
         });
@@ -366,14 +374,18 @@
             const nameTxt = itemName.value.toLowerCase();
             const price = parseFloat(document.getElementById('price').value) || 0;
             const cost = parseFloat(document.getElementById('cost').value) || 0;
+            
+            // Wenn Kostenlos AN -> Einnahme 0. Sonst Input.
             const shipInc = toggleFreeShip.checked ? 0 : (parseFloat(inpShipCharged.value) || 0);
+            
+            // Versand LABEL zahle ich IMMER
             const shipExp = parseFloat(inpShipCost.value) || 0;
+            
             const adRate = parseFloat(document.getElementById('adRate').value) || 0;
 
             // 1. KATEGORIE
             let rate = 11.0; 
             let cName = "Standard";
-            
             if(nameTxt.length > 2) {
                 for(let c of categories) {
                     if(c.keys.some(k => nameTxt.includes(k))) {
@@ -382,7 +394,6 @@
                         break;
                     }
                 }
-                // Show Bar
                 catBar.classList.add('active');
                 catName.innerText = cName;
                 catRate.innerText = rate + "%";
@@ -399,7 +410,7 @@
             const vatProv = provNet * 0.19;
             const provGross = provNet + vatProv;
 
-            // Anzeige
+            // Anzeige (Brutto)
             let adFeeGross = 0;
             if(adRate > 0) {
                 const adNet = basis * (adRate / 100);
