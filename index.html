@@ -2,267 +2,290 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Profit Calculator Ultimate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profit Rechner Mobile</title>
     <style>
-        /* --- MODERN DARK THEME CSS --- */
+        /* --- MODERN DARK THEME & IPHONE CSS --- */
         :root {
-            --bg-body: #0f0f11;
-            --bg-card: #18181b;
-            --bg-input: #212124;
-            --text-main: #ededed;
-            --text-muted: #888888;
-            --accent: #00e5ff; /* Cyan Glow */
-            --accent-dim: rgba(0, 229, 255, 0.1);
-            --border: #2a2a2e;
-            --success: #00ff9d;
-            --danger: #ff5252;
+            --bg-body: #000000; /* True Black für OLED */
+            --bg-card: #1c1c1e; /* iOS Dark Mode Grau */
+            --bg-input: #2c2c2e;
+            --text-main: #ffffff;
+            --text-muted: #98989d;
+            --accent: #0a84ff; /* iOS Blue */
+            --border: #38383a;
+            --success: #30d158; /* iOS Green */
+            --danger: #ff453a; /* iOS Red */
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            align-items: center; /* Zentriert auf Desktop */
+            padding: 0;
         }
 
-        .calculator-card {
+        /* Hauptcontainer */
+        .dashboard-card {
             background-color: var(--bg-card);
             width: 100%;
-            max-width: 500px;
-            border-radius: 20px;
-            padding: 32px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border);
+            max-width: 900px;
+            border-radius: 0; /* Auf Mobile Ecken eckig lassen */
+            display: grid;
+            grid-template-columns: 1.2fr 1fr; /* Desktop: 2 Spalten */
+            gap: 20px;
+            padding: 20px;
+            min-height: 100vh; /* Mobile: Füllt Screen */
         }
 
         h1 {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-bottom: 24px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            grid-column: 1 / -1;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
             text-align: center;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: -0.5px;
         }
 
-        /* Input Group Styling */
-        .input-group {
-            margin-bottom: 16px;
-            position: relative;
-        }
-
-        .grid-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
+        /* --- INPUT BEREICH --- */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .input-group label {
             display: block;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
 
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        /* iOS Input Optimierung */
         input[type="text"],
         input[type="number"] {
             width: 100%;
             background-color: var(--bg-input);
-            border: 1px solid var(--border);
+            border: 1px solid transparent;
             color: #fff;
             padding: 14px;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            border-radius: 10px;
+            /* WICHTIG: 16px verhindert Auto-Zoom auf iPhone */
+            font-size: 16px; 
+            -webkit-appearance: none; /* Entfernt iOS Standard-Shadows */
+            transition: background 0.2s;
         }
 
-        input[type="text"]:focus,
-        input[type="number"]:focus {
+        input:focus {
+            background-color: #3a3a3c;
             border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-dim);
         }
 
-        /* Detected Category Badge */
-        .category-display {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #2a2a2e;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-top: 8px;
-            font-size: 0.85rem;
+        /* Kategorie Badge im Input */
+        .category-wrapper { position: relative; }
+        
+        .category-badge {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-top: 14px; /* Korrektur wegen Label */
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: var(--accent);
             opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .category-badge.active { opacity: 1; }
+
+        /* --- RESULT BEREICH --- */
+        .result-section {
+            background-color: #000000;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid var(--border);
         }
 
-        .category-display.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .cat-name { color: var(--accent); font-weight: 600; }
-        .cat-rate { background: #000; padding: 4px 8px; border-radius: 4px; font-family: monospace; }
-
-        /* Results Area */
-        .result-area {
-            margin-top: 32px;
-            border-top: 1px solid var(--border);
-            padding-top: 24px;
-        }
-
-        .result-row {
+        .calc-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: #8e8e93;
         }
 
-        .result-row.deduction span:last-child {
-            color: var(--danger);
-        }
-
-        .result-row span:last-child {
-            font-family: 'Courier New', monospace;
+        .calc-row.highlight {
+            color: #fff;
             font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .result-total {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .profit-box {
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px dashed var(--border);
+            text-align: center;
         }
 
-        .result-total .label {
-            font-size: 1rem;
-            font-weight: 600;
+        .profit-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
-        .result-total .value {
-            font-size: 1.8rem;
+        .profit-value {
+            font-size: 2.5rem;
             font-weight: 700;
             color: var(--success);
-            text-shadow: 0 0 20px rgba(0, 255, 157, 0.1);
-            font-family: 'Courier New', monospace;
+            font-family: -apple-system, sans-serif; /* San Francisco Font */
+            letter-spacing: -1px;
+        }
+
+        /* --- MOBILE MEDIA QUERY (iPhone) --- */
+        @media (min-width: 769px) {
+            /* Desktop Verschönerungen */
+            body { background-color: #111; padding: 20px; }
+            .dashboard-card { 
+                border-radius: 20px; 
+                min-height: auto; 
+                box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Mobile Layout */
+            .dashboard-card {
+                display: flex;
+                flex-direction: column;
+                gap: 25px;
+                padding: 20px 16px;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .result-section {
+                margin-top: auto; /* Schiebt Ergebnis nach unten wenn Platz ist */
+                border: 1px solid #333;
+            }
+
+            h1 { font-size: 1.2rem; margin-top: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="calculator-card">
-        <h1>Profit Kalkulator</h1>
+    <div class="dashboard-card">
+        <h1>Gewinn Rechner</h1>
 
-        <div class="input-group">
-            <label>Was verkaufst du?</label>
-            <input type="text" id="itemName" placeholder="z.B. Nike Schuhe, Buch, iPhone..." autocomplete="off">
+        <div class="input-section">
             
-            <div id="categoryBadge" class="category-display">
-                <span>Kategorie: <span id="catName" class="cat-name">-</span></span>
-                <span id="catRate" class="cat-rate">0%</span>
+            <div class="input-group category-wrapper">
+                <label>Produktname</label>
+                <input type="text" id="itemName" placeholder="z.B. Sneaker..." autocomplete="off">
+                <div id="catBadge" class="category-badge"><span id="catRateDisplay">19%</span></div>
+            </div>
+
+            <div class="row">
+                <div class="col input-group">
+                    <label>Verkauf (€)</label>
+                    <input type="number" id="price" placeholder="0" inputmode="decimal">
+                </div>
+                <div class="col input-group">
+                    <label>Einkauf (€)</label>
+                    <input type="number" id="purchasePrice" placeholder="0" inputmode="decimal">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col input-group">
+                    <label>Versand (€)</label>
+                    <input type="number" id="shipping" placeholder="0" inputmode="decimal">
+                </div>
+                <div class="col input-group">
+                    <label>Anzeige (%)</label>
+                    <input type="number" id="adFeePercent" placeholder="%" inputmode="decimal">
+                </div>
             </div>
         </div>
 
-        <div class="grid-row">
-            <div class="input-group">
-                <label>Verkaufspreis (€)</label>
-                <input type="number" id="price" placeholder="0.00" step="0.01">
-            </div>
-            <div class="input-group">
-                <label>Einkaufspreis (€)</label>
-                <input type="number" id="purchasePrice" placeholder="0.00" step="0.01">
-            </div>
-        </div>
+        <div class="result-section">
+            <div>
+                <div class="calc-row highlight">
+                    <span>Brutto Umsatz</span>
+                    <span id="displayRevenue">0,00 €</span>
+                </div>
 
-        <div class="grid-row">
-            <div class="input-group">
-                <label>Dein Versand (€)</label>
-                <input type="number" id="shipping" placeholder="0.00" step="0.01">
-            </div>
-            
-            <div class="input-group">
-                <label>Anzeigegebühr (%)</label>
-                <input type="number" id="adFeePercent" placeholder="z.B. 2" step="0.1">
-            </div>
-        </div>
+                <div class="calc-row">
+                    <span>Einkauf</span>
+                    <span id="displayPurchase" style="color:var(--danger)">- 0,00 €</span>
+                </div>
 
-        <div class="result-area">
-            <div class="result-row">
-                <span>Brutto Verkauf</span>
-                <span id="displayRevenue" style="color: #fff;">0,00 €</span>
-            </div>
-            
-            <div class="result-row deduction">
-                <span>- Kat.-Abzug / Steuer</span>
-                <span id="displayTax">0,00 €</span>
-            </div>
-            <div class="result-row deduction" id="rowAdFee" style="display:none;">
-                <span>- Anzeigegebühr (<span id="lblAdPercent">0</span>%)</span>
-                <span id="displayAdFee">0,00 €</span>
-            </div>
-            <div class="result-row deduction">
-                <span>- Versandkosten</span>
-                <span id="displayShipping">0,00 €</span>
-            </div>
-            <div class="result-row deduction" style="border-bottom: 1px solid #2a2a2e; padding-bottom:10px; margin-bottom:10px;">
-                <span>- Wareneinsatz (Einkauf)</span>
-                <span id="displayPurchase">0,00 €</span>
+                <div class="calc-row">
+                    <span>Steuer/Kat. (<span id="txtTaxRate">19%</span>)</span>
+                    <span id="displayTax" style="color:var(--danger)">- 0,00 €</span>
+                </div>
+
+                <div class="calc-row">
+                    <span>Versand</span>
+                    <span id="displayShipping" style="color:var(--danger)">- 0,00 €</span>
+                </div>
+
+                <div class="calc-row" id="rowAdFee" style="display: none;">
+                    <span>Gebühr</span>
+                    <span id="displayAdFee" style="color:var(--danger)">- 0,00 €</span>
+                </div>
             </div>
 
-            <div class="result-total">
-                <span class="label">Reingewinn</span>
-                <span class="value" id="displayProfit">0,00 €</span>
+            <div class="profit-box">
+                <span class="profit-label">Dein Reingewinn</span>
+                <span class="profit-value" id="displayProfit">0,00 €</span>
             </div>
         </div>
     </div>
 
     <script>
-        // --- KONFIGURATION DER KATEGORIEN ---
+        // --- LOGIK ---
+        
         const categories = [
-            { 
-                name: "Bekleidung & Schuhe", 
-                keywords: ["schuh", "sneaker", "hose", "shirt", "jacke", "kleid", "nike", "adidas", "stiefel"], 
-                percent: 19 
-            },
-            { 
-                name: "Elektronik & Tech", 
-                keywords: ["iphone", "handy", "laptop", "kabel", "computer", "samsung", "tv", "audio", "kamera"], 
-                percent: 19 
-            },
-            { 
-                name: "Bücher & Medien", 
-                keywords: ["buch", "roman", "zeitung", "zeitschrift", "magazin", "comic", "manga"], 
-                percent: 7 
-            },
-            { 
-                name: "Lebensmittel", 
-                keywords: ["essen", "trinken", "schokolade", "kaffee", "tee", "wein"], 
-                percent: 7 
-            },
-            {
-                name: "Sammlerstücke (Luxus)",
-                keywords: ["uhr", "gold", "schmuck", "rolex", "antik", "diamant"],
-                percent: 25 
-            }
+            { keywords: ["schuh", "sneaker", "hose", "shirt", "jacke", "kleid", "nike", "adidas", "stiefel", "mode"], percent: 19 },
+            { keywords: ["iphone", "handy", "laptop", "kabel", "computer", "samsung", "tv", "audio", "kamera", "tech"], percent: 19 },
+            { keywords: ["buch", "roman", "zeitung", "zeitschrift", "magazin", "comic", "manga"], percent: 7 },
+            { keywords: ["essen", "trinken", "schokolade", "kaffee", "tee", "wein", "food"], percent: 7 },
+            { keywords: ["uhr", "gold", "schmuck", "rolex", "antik", "diamant", "luxus"], percent: 25 }
         ];
 
         const defaultRate = 19; 
 
-        // DOM Elemente
+        // Elemente holen
         const inputs = document.querySelectorAll('input');
         const itemNameInput = document.getElementById('itemName');
         const priceInput = document.getElementById('price');
@@ -270,22 +293,20 @@
         const shippingInput = document.getElementById('shipping');
         const adFeePercentInput = document.getElementById('adFeePercent');
         
-        const catBadge = document.getElementById('categoryBadge');
-        const catNameEl = document.getElementById('catName');
-        const catRateEl = document.getElementById('catRate');
-
+        // UI Elemente
+        const catBadge = document.getElementById('catBadge');
+        const catRateDisplay = document.getElementById('catRateDisplay');
+        
         const displayRevenue = document.getElementById('displayRevenue');
-        const displayTax = document.getElementById('displayTax');
-        const rowAdFee = document.getElementById('rowAdFee');
-        const lblAdPercent = document.getElementById('lblAdPercent');
-        const displayAdFee = document.getElementById('displayAdFee');
-        const displayShipping = document.getElementById('displayShipping');
         const displayPurchase = document.getElementById('displayPurchase');
+        const displayTax = document.getElementById('displayTax');
+        const txtTaxRate = document.getElementById('txtTaxRate');
+        const displayShipping = document.getElementById('displayShipping');
+        const displayAdFee = document.getElementById('displayAdFee');
+        const rowAdFee = document.getElementById('rowAdFee');
         const displayProfit = document.getElementById('displayProfit');
 
-        const formatMoney = (num) => {
-            return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(num);
-        };
+        const formatMoney = (num) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(num);
 
         function calculate() {
             const text = itemNameInput.value.toLowerCase();
@@ -296,75 +317,57 @@
 
             // 1. Kategorie erkennen
             let currentRate = defaultRate;
-            let currentCatName = "Standard";
             let matchFound = false;
 
             if (text.length > 2) {
                 for (let cat of categories) {
-                    if (cat.keywords.some(keyword => text.includes(keyword))) {
+                    if (cat.keywords.some(k => text.includes(k))) {
                         currentRate = cat.percent;
-                        currentCatName = cat.name;
                         matchFound = true;
                         break; 
                     }
                 }
             }
 
-            // UI Update für Kategorie
+            // Badge Update
             if (text.length > 0) {
                 catBadge.classList.add('active');
-                catNameEl.innerText = currentCatName;
-                catRateEl.innerText = currentRate + "%";
-                catNameEl.style.color = matchFound ? "var(--success)" : "var(--text-muted)";
+                catRateDisplay.innerText = currentRate + "%";
+                catRateDisplay.style.color = matchFound ? "var(--accent)" : "var(--text-muted)";
             } else {
                 catBadge.classList.remove('active');
             }
+            txtTaxRate.innerText = currentRate + "%";
 
-            // 2. Berechnungen
-            
-            // Steuer/Kategorie-Abzug (Herausrechnen aus Brutto)
+            // 2. Mathe
             const taxAmount = sellingPrice - (sellingPrice / (1 + (currentRate / 100))); 
             
-            // Anzeigegebühr (Variable Prozent vom Brutto-Verkaufspreis)
-            let adFeeAmount = 0;
-            if (adFeePercent > 0) {
-                adFeeAmount = sellingPrice * (adFeePercent / 100);
-                rowAdFee.style.display = 'flex';
-                lblAdPercent.innerText = adFeePercent; // Zeige aktuellen Prozentwert im Label an
-            } else {
-                rowAdFee.style.display = 'none';
-            }
+            // Anzeigegebühr
+            const adFeeAmount = sellingPrice * (adFeePercent / 100);
+            rowAdFee.style.display = adFeePercent > 0 ? "flex" : "none";
 
-            // Reingewinn Formel
-            const profit = sellingPrice - taxAmount - shipping - adFeeAmount - purchasePrice;
+            // Gewinn
+            const profit = sellingPrice - purchasePrice - taxAmount - shipping - adFeeAmount;
 
-            // 3. Ausgabe aktualisieren
+            // 3. Anzeigen
             displayRevenue.innerText = formatMoney(sellingPrice);
-            displayTax.innerText = "- " + formatMoney(taxAmount);
-            displayAdFee.innerText = "- " + formatMoney(adFeeAmount);
-            displayShipping.innerText = "- " + formatMoney(shipping);
             displayPurchase.innerText = "- " + formatMoney(purchasePrice);
+            displayTax.innerText = "- " + formatMoney(taxAmount);
+            displayShipping.innerText = "- " + formatMoney(shipping);
+            displayAdFee.innerText = "- " + formatMoney(adFeeAmount);
             
             displayProfit.innerText = formatMoney(profit);
             
-            // Farb-Logik für Gewinn/Verlust
             if (profit > 0) {
                 displayProfit.style.color = "var(--success)";
-                displayProfit.style.textShadow = "0 0 20px rgba(0, 255, 157, 0.2)";
             } else if (profit < 0) {
                 displayProfit.style.color = "var(--danger)";
-                displayProfit.style.textShadow = "0 0 20px rgba(255, 82, 82, 0.2)";
             } else {
                 displayProfit.style.color = "var(--text-muted)";
-                displayProfit.style.textShadow = "none";
             }
         }
 
-        // Event Listeners für alle Inputs
-        inputs.forEach(input => {
-            input.addEventListener('input', calculate);
-        });
-
+        inputs.forEach(input => input.addEventListener('input', calculate));
     </script>
 </body>
 </html>
