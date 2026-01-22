@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>eBay Gebühren</title>
+    <title>eBay Gebühren Rechner</title>
     <style>
-        /* --- CORE STYLE: STARRES LAYOUT --- */
+        /* --- CORE STYLE: STARRES LAYOUT (FIXED) --- */
         :root {
             --bg-body: #000000;
             --bg-card: #151516;
             --bg-input: #242426;
             --text-main: #ffffff;
             --text-muted: #959595;
-            --accent: #3665f3; /* eBay Blue-ish */
+            --accent: #3665f3; /* eBay Blue */
             --border: #2a2a2b;
-            --danger: #e03e3e; /* Rot für Gebühren */
-            --success: #32d74b;
+            --danger: #ff453a; /* iOS Red */
+            --success: #32d74b; /* iOS Green */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -26,7 +26,7 @@
             color: var(--text-main);
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* Scrollen verhindern */
+            overflow: hidden; /* Kein Scrollen */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -35,33 +35,34 @@
         .app-container {
             width: 100%;
             height: 100%;
-            max-width: 600px; /* Auf Desktop begrenzen */
+            max-width: 600px;
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            padding: 16px; /* Etwas weniger Padding für mehr Platz */
             background-color: var(--bg-body);
         }
 
         h1 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             letter-spacing: -0.5px;
+            color: var(--text-main);
         }
 
-        /* --- INPUT BEREICH (OBEN) --- */
+        /* --- INPUT BEREICH --- */
         .input-section {
-            flex: 0 0 auto; /* Nimmt nur so viel Platz wie nötig */
+            flex: 0 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .input-row {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
         .input-group {
@@ -71,9 +72,9 @@
 
         .input-group label {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-muted);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             text-transform: uppercase;
             font-weight: 600;
         }
@@ -85,7 +86,7 @@
             color: white;
             padding: 12px;
             border-radius: 8px;
-            font-size: 16px; /* Verhindert Zoom auf iOS */
+            font-size: 16px; /* Verhindert iOS Zoom */
             font-weight: 500;
             transition: 0.2s;
         }
@@ -95,11 +96,11 @@
             border-color: var(--text-muted);
         }
 
-        /* Kategorie Badge im Inputfeld */
+        /* Kategorie Badge */
         .cat-badge {
             position: absolute;
             right: 10px;
-            top: 32px;
+            top: 30px;
             font-size: 0.7rem;
             background: #333;
             padding: 2px 6px;
@@ -111,83 +112,84 @@
         }
         .cat-badge.visible { opacity: 1; }
 
-        /* --- ERGEBNIS BEREICH (UNTEN, FÜLLT REST) --- */
+        /* --- ERGEBNIS BEREICH --- */
         .result-card {
-            flex: 1; /* Füllt den Rest des Screens */
+            flex: 1;
             background-color: var(--bg-card);
             border-radius: 16px;
-            padding: 20px;
+            padding: 18px;
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Verteilt Inhalt vertikal */
+            justify-content: space-between;
         }
 
         .fee-header {
             display: flex;
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-            margin-bottom: 15px;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
         }
         
-        .fee-header span:first-child { color: var(--text-muted); font-size: 0.9rem; }
-        .fee-header span:last-child { font-weight: 600; text-decoration: underline; }
+        .fee-header span:first-child { color: var(--text-muted); font-size: 0.85rem; }
+        .fee-header span:last-child { font-weight: 600; text-decoration: underline; color: #fff; }
 
         .line-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
         
         .line-item.sub {
             padding-left: 10px;
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin-bottom: 6px;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 4px;
+            margin-top: -4px;
         }
 
         .line-item.highlight {
             color: var(--text-main);
-            margin-top: 10px;
-            padding-top: 10px;
+            margin-top: 8px;
+            padding-top: 8px;
             border-top: 1px dashed var(--border);
             font-weight: 500;
         }
 
-        .line-item .red { color: var(--danger); }
+        .red { color: var(--danger); }
 
-        /* Footer Profit Box */
+        /* Profit Box */
         .profit-container {
-            margin-top: auto; /* Drückt es nach ganz unten */
-            padding-top: 20px;
+            margin-top: auto;
+            padding-top: 15px;
             border-top: 1px solid var(--border);
             text-align: center;
         }
 
         .profit-val {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             font-weight: 700;
             color: var(--success);
             font-family: -apple-system, sans-serif;
             letter-spacing: -1px;
         }
-        .profit-lbl { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-top: 5px; }
+        .profit-lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
 
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <h1>eBay Gebühren</h1>
+        <h1>eBay Gebühren & Profit</h1>
 
         <div class="input-section">
             <div class="input-group">
                 <label>Artikelbezeichnung</label>
-                <input type="text" id="itemName" placeholder="z.B. Haix Schuhe, iPhone..." autocomplete="off">
-                <div id="catBadge" class="cat-badge">Standard 11%</div>
+                <input type="text" id="itemName" placeholder="z.B. Haix Schuhe..." autocomplete="off">
+                <div id="catBadge" class="cat-badge">11%</div>
             </div>
 
             <div class="input-row">
@@ -196,7 +198,7 @@
                     <input type="number" id="price" placeholder="0" inputmode="decimal">
                 </div>
                 <div class="input-group">
-                    <label>Versand (Kunde zahlt)</label>
+                    <label>Versand (Einnahme)</label>
                     <input type="number" id="shippingCharged" placeholder="0" inputmode="decimal">
                 </div>
             </div>
@@ -207,9 +209,18 @@
                     <input type="number" id="cost" placeholder="0" inputmode="decimal">
                 </div>
                 <div class="input-group">
-                    <label>Anzeige (%) (Opt)</label>
+                    <label>Versand (Kosten/Label)</label>
+                    <input type="number" id="shippingCost" placeholder="0" inputmode="decimal" style="color: #ffaa9d;">
+                </div>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Anzeige (%) (Optional)</label>
                     <input type="number" id="adRate" placeholder="0" inputmode="decimal">
                 </div>
+                <div class="input-group" style="visibility: hidden;">
+                     </div>
             </div>
         </div>
 
@@ -229,7 +240,7 @@
                 </div>
 
                 <div class="line-item">
-                    <span>Verkaufsprovision (Fix)</span>
+                    <span>Provision (Fix)</span>
                     <span class="red">- 0,35 €</span>
                 </div>
 
@@ -238,19 +249,14 @@
                     <span class="red" id="lblAdFee">- 0,00 €</span>
                 </div>
 
-                <div class="line-item highlight" style="font-size: 0.8rem; border-top: 1px solid #333;">
-                    <span>Gesamtgebühren (Netto)</span>
-                    <span class="red" id="lblTotalNet">- 0,00 €</span>
-                </div>
-
-                <div class="line-item">
-                    <span>MwSt. (19%) auf Gebühren</span>
-                    <span class="red" id="lblVat">- 0,00 €</span>
-                </div>
-
                 <div class="line-item highlight">
-                    <span>Gesamtgebühren (inkl. MwSt.)</span>
+                    <span>Gebühren (inkl. 19% MwSt.)</span>
                     <span class="red" style="font-weight:700;" id="lblTotalGross">- 0,00 €</span>
+                </div>
+
+                <div class="line-item" style="margin-top: 4px;">
+                    <span>Versandlabel Kauf</span>
+                    <span class="red" id="lblShipCostDisplay">- 0,00 €</span>
                 </div>
             </div>
 
@@ -262,50 +268,59 @@
     </div>
 
     <script>
-        // --- KONFIGURATION ---
-        // Basierend auf eBay DE gewerblichen Sätzen (grob vereinfacht für die App)
-        // Haix (Arbeitsschuhe) fallen oft unter Business & Industrie (11%)
-        // Sneaker unter Mode (12%)
-        // Technik (6.5% - 11%)
+        // --- KONFIGURATION (eBay DE) ---
+        // Haix (Business & Industrie) = 11% (bis 990€)
+        // Sneaker (Mode) = 12%
+        // Technik = 6.5% - 11%
         const categories = [
-            { name: "Business & Industrie", rate: 11.0, keys: ["haix", "arbeit", "industrie", "werkzeug", "maschine", "büro"] },
-            { name: "Elektronik", rate: 6.5, keys: ["handy", "iphone", "samsung", "laptop", "pc", "computer"] }, // Günstige Elektronik oft niedriger, hier vereinfacht
-            { name: "Mode & Schuhe", rate: 12.0, keys: ["schuh", "sneaker", "nike", "adidas", "kleid", "shirt", "hose"] },
+            { name: "Business & Ind.", rate: 11.0, keys: ["haix", "arbeit", "industrie", "werkzeug"] },
+            { name: "Elektronik", rate: 6.5, keys: ["handy", "iphone", "samsung", "laptop", "pc"] },
+            { name: "Mode & Schuhe", rate: 12.0, keys: ["schuh", "sneaker", "nike", "adidas", "kleid", "shirt"] },
             { name: "Medien", rate: 9.0, keys: ["buch", "spiel", "dvd", "cd"] }
         ];
 
-        const defaultRate = 11.0; // Fallback (wie im Screenshot Beispiel)
-        const fixedFee = 0.35; // 35 Cent pro Bestellung
-        const vatRate = 0.19; // 19% MwSt auf die Gebühren
+        const defaultRate = 11.0; 
+        const fixedFee = 0.35; 
+        const vatRate = 0.19; 
 
-        // DOM Elemente
+        // Elemente
         const inputs = document.querySelectorAll('input');
+        const inpShipCharged = document.getElementById('shippingCharged');
+        const inpShipCost = document.getElementById('shippingCost');
+        
         const uiBasis = document.getElementById('lblBasis');
         const uiVarFee = document.getElementById('lblVarFee');
         const uiVarText = document.getElementById('lblVarText');
         const uiAdFee = document.getElementById('lblAdFee');
         const rowAd = document.getElementById('rowAd');
-        const uiTotalNet = document.getElementById('lblTotalNet');
-        const uiVat = document.getElementById('lblVat');
         const uiTotalGross = document.getElementById('lblTotalGross');
+        const uiShipCostDisplay = document.getElementById('lblShipCostDisplay');
         const uiProfit = document.getElementById('lblProfit');
-        
         const uiCatBadge = document.getElementById('catBadge');
 
         const fmt = (num) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(num);
 
+        // Smart Feature: Versandkosten automatisch füllen
+        inpShipCharged.addEventListener('input', () => {
+            // Nur automatisch setzen, wenn der User nichts Eigenes bei "Kosten" eingetragen hat 
+            // oder wenn es leer ist.
+            if(document.activeElement === inpShipCharged) {
+                inpShipCost.value = inpShipCharged.value;
+                calculate();
+            }
+        });
+
         function calculate() {
-            // Inputs lesen
             const name = document.getElementById('itemName').value.toLowerCase();
             const price = parseFloat(document.getElementById('price').value) || 0;
-            const shipCharge = parseFloat(document.getElementById('shippingCharged').value) || 0;
-            const cost = parseFloat(document.getElementById('cost').value) || 0;
+            const shipIncome = parseFloat(inpShipCharged.value) || 0;
+            const itemCost = parseFloat(document.getElementById('cost').value) || 0;
+            const labelCost = parseFloat(inpShipCost.value) || 0;
             const adPercent = parseFloat(document.getElementById('adRate').value) || 0;
 
-            // 1. Kategorie erkennen
+            // 1. Kategorie
             let currentRate = defaultRate;
             let catName = "Sonstige";
-            
             for (let cat of categories) {
                 if (cat.keys.some(k => name.includes(k))) {
                     currentRate = cat.rate;
@@ -314,7 +329,7 @@
                 }
             }
 
-            // UI Badge
+            // Badge Update
             if (name.length > 2) {
                 uiCatBadge.innerText = `${catName} ${currentRate}%`;
                 uiCatBadge.classList.add('visible');
@@ -322,39 +337,26 @@
                 uiCatBadge.classList.remove('visible');
             }
 
-            // 2. BERECHNUNG NACH EBAY LOGIK (Screenshot)
-            
-            // A. Gebührengrundlage = Preis + Versand
-            const basis = price + shipCharge;
+            // 2. Berechnung
+            const basis = price + shipIncome; // Worauf eBay Gebühren erhebt
 
-            // B. Variable Provision (auf Basis)
+            // Gebühren (Netto)
             const varFee = basis * (currentRate / 100);
-
-            // C. Anzeigegebühr (Meist auf Basis oder Preis, eBay variiert. Hier auf Basis zur Sicherheit)
             const adFee = basis * (adPercent / 100);
-
-            // D. Netto Gebühren Summe
             const totalNet = varFee + fixedFee + adFee;
 
-            // E. MwSt auf Gebühren
+            // MwSt und Brutto
             const vat = totalNet * vatRate;
-
-            // F. Brutto Gebühren (Das zieht eBay ab)
             const totalGross = totalNet + vat;
 
-            // G. Gewinn
-            // Einnahme (Preis + Versand) MINUS Gebühren MINUS Einkauf MINUS tatsächlicher Versand
-            // Wir nehmen an: Versandkosten Input ist Einnahme UND Ausgabe (Nullsumme beim Versand), 
-            // oder der User kalkuliert den Versandeinkauf im "Einkauf"-Feld mit ein.
-            // Um es "minimalistisch" zu halten, ziehen wir vom Payout (Einnahme - Gebühr) den Einkauf ab.
-            // Payout von eBay = (Preis + Versand) - BruttoGebühren.
-            const payout = basis - totalGross;
-            const profit = payout - cost; // Wenn man Versandkosten hat, muss man die beim "Einkauf" mit dazurechnen oder wir bräuchten ein Feld mehr.
+            // REINGEWINN FORMEL:
+            // (Preis + VersandEinnahme) - GebührenBrutto - ArtikelEinkauf - VersandLabelKosten
+            const profit = basis - totalGross - itemCost - labelCost;
 
-            // 3. UI UPDATES
+            // 3. UI Update
             uiBasis.innerText = fmt(basis);
             uiVarFee.innerText = "- " + fmt(varFee);
-            uiVarText.innerText = `Satz: ${currentRate}% (Kategorie ${catName})`;
+            uiVarText.innerText = `${currentRate}% (${catName})`;
             
             if (adPercent > 0) {
                 rowAd.style.display = 'flex';
@@ -363,13 +365,14 @@
                 rowAd.style.display = 'none';
             }
 
-            uiTotalNet.innerText = "- " + fmt(totalNet);
-            uiVat.innerText = "- " + fmt(vat);
             uiTotalGross.innerText = "- " + fmt(totalGross);
+            
+            // Zeige die Versandkosten auch im Rechenweg an, damit man es versteht
+            uiShipCostDisplay.innerText = "- " + fmt(labelCost);
             
             uiProfit.innerText = fmt(profit);
 
-            // Farbe Profit
+            // Farbe
             if (profit > 0) uiProfit.style.color = "var(--success)";
             else if (profit < 0) uiProfit.style.color = "var(--danger)";
             else uiProfit.style.color = "var(--text-muted)";
