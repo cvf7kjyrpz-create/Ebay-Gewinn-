@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>eBay Profit Fixed</title>
+    <title>eBay Smart Calc</title>
     <style>
-        /* --- STYLES --- */
+        /* --- CORE DESIGN --- */
         :root {
             --bg-body: #000000;
             --input-bg: #1c1c1e;
@@ -16,8 +16,8 @@
             --border: #333;
             --success: #32d74b;
             --danger: #ff453a;
-            --field-h: 42px; /* Gute Höhe für Finger */
-            --gap: 10px;
+            --field-h: 44px; /* Touch-freundliche Höhe */
+            --gap: 12px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -31,26 +31,28 @@
             overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: center; /* Alles mittig */
+            align-items: center;
         }
 
-        /* Haupt-Container (Zentriert, Fest) */
+        /* Haupt-Container */
         .app-card {
             width: 95%;
             max-width: 400px;
+            height: 95vh;
+            max-height: 650px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            padding: 10px;
+            gap: 10px;
         }
 
         h1 {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-align: center;
-            color: #555;
+            color: #444;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin: 0;
+            margin: 0 0 5px 0;
+            flex-shrink: 0;
         }
 
         /* --- INPUT BEREICH --- */
@@ -60,8 +62,9 @@
             gap: var(--gap);
             background: #111;
             padding: 15px;
-            border-radius: 16px;
+            border-radius: 18px;
             border: 1px solid #222;
+            flex-shrink: 0;
         }
 
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
@@ -86,7 +89,7 @@
             background-color: var(--input-bg);
             border: 1px solid transparent;
             color: #fff;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 0 10px 0 85px; /* Platz links für Label */
             font-size: 16px;
             font-weight: 500;
@@ -95,75 +98,47 @@
         }
         input:focus { background-color: var(--input-active); border-color: #444; outline: none; }
         
-        #itemName { padding-left: 10px; text-align: left; }
-        
-        /* Disabled Style */
-        input:disabled {
-            opacity: 0.3;
-            background-color: #000;
-            border: 1px dashed #333;
-            color: #555;
-        }
+        #itemName { padding-left: 12px; text-align: left; }
 
-        /* --- TOGGLE BUTTON (Gross & Klickbar) --- */
-        .toggle-container {
-            position: relative;
-            height: var(--field-h);
+        /* TOGGLE BUTTON (Integriert) */
+        .toggle-btn {
             background-color: var(--input-bg);
-            border-radius: 8px;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-        /* Das eigentliche Checkbox Element (versteckt, aber klickbar über Label) */
-        .toggle-checkbox {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            cursor: pointer;
-            z-index: 5;
-        }
-        
-        /* Das Design des Buttons */
-        .toggle-content {
+            border-radius: 10px;
+            height: var(--field-h);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 100%;
-            padding: 0 8px;
-            pointer-events: none; /* Klicks gehen durch an Checkbox */
+            padding: 0 10px;
+            cursor: pointer;
+            border: 1px solid transparent;
         }
-        
         .t-txt { font-size: 0.6rem; color: #888; font-weight: 700; text-transform: uppercase; }
         
-        /* Slider Grafik */
-        .t-slider {
-            width: 36px; height: 20px;
-            background-color: #333; border-radius: 20px;
-            position: relative; transition: 0.3s;
+        .switch-ui {
+            position: relative; width: 36px; height: 22px;
+            background-color: #444; border-radius: 20px; transition: 0.3s;
         }
-        .t-slider::after {
+        .switch-ui::after {
             content: ''; position: absolute; top: 2px; left: 2px;
-            width: 16px; height: 16px; background-color: #fff;
-            border-radius: 50%; transition: 0.3s;
+            width: 18px; height: 18px; background-color: #fff; border-radius: 50%;
+            transition: 0.3s;
         }
+        input[type="checkbox"] { display: none; }
+        input:checked + .switch-ui { background-color: var(--accent); }
+        input:checked + .switch-ui::after { transform: translateX(14px); }
 
-        /* Checked State */
-        .toggle-checkbox:checked + .toggle-content .t-slider { background-color: var(--accent); }
-        .toggle-checkbox:checked + .toggle-content .t-slider::after { transform: translateX(16px); }
 
-
-        /* --- RESULT BEREICH (Direkt darunter) --- */
+        /* --- RESULT BEREICH --- */
         .result-box {
             background: #111;
             padding: 15px 20px;
-            border-radius: 16px;
+            border-radius: 18px;
             border: 1px solid #222;
             display: flex;
             flex-direction: column;
             gap: 4px;
+            flex: 1; /* Füllt den Platz */
+            justify-content: center;
         }
 
         .line {
@@ -176,12 +151,11 @@
         }
         .line.head { color: #fff; font-weight: 500; border-bottom: 1px solid #222; padding-bottom: 6px; margin-bottom: 4px; }
         .line.hl { color: #ddd; font-weight: 500; border-top: 1px dashed #333; padding-top: 6px; margin-top: 4px; }
-        
         .red { color: var(--danger); }
         
-        /* Profit Block (Integriert) */
+        /* PROFIT BLOCK */
         .profit-block {
-            margin-top: 15px;
+            margin-top: auto; /* Schiebt es nach unten in der Box */
             background: #080808;
             border: 1px solid #222;
             border-radius: 12px;
@@ -189,9 +163,7 @@
         }
         
         .p-final {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
         }
         .p-lbl { font-size: 0.9rem; font-weight: 600; color: #fff; }
         .p-val { font-size: 1.8rem; font-weight: 700; color: var(--success); letter-spacing: -0.5px; }
@@ -206,7 +178,7 @@
 <body>
 
     <div class="app-card">
-        <h1>Profit Kalkulator</h1>
+        <h1>Smart Profit Calc</h1>
 
         <div class="input-box">
             <input type="text" id="itemName" placeholder="Artikelname..." autocomplete="off">
@@ -235,28 +207,21 @@
 
             <div class="row">
                 <div class="field">
-                    <label>Label</label>
+                    <label>Versand</label>
                     <input type="number" id="shipCost" placeholder="€" inputmode="decimal" style="color: #ffaa9d;">
                 </div>
                 
-                <div class="toggle-container">
-                    <input type="checkbox" id="freeShipToggle" class="toggle-checkbox">
-                    <div class="toggle-content">
-                        <span class="t-txt">Versand<br>Kostenlos?</span>
-                        <div class="t-slider"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="field">
-                <label style="width:100%; text-align:center; left:0;">Versand Einnahme (Kunde)</label>
-                <input type="number" id="shipCharged" placeholder="0 €" inputmode="decimal" style="text-align: center; padding: 0;">
+                <label class="toggle-btn">
+                    <span class="t-txt" id="shipStatusText">Kunde zahlt<br>Versand</span>
+                    <input type="checkbox" id="freeShipToggle">
+                    <div class="switch-ui"></div>
+                </label>
             </div>
         </div>
 
         <div class="result-box">
             <div class="line head">
-                <span>Basiswert</span>
+                <span>Basiswert (Umsatz)</span>
                 <span id="lblBasis">0,00 €</span>
             </div>
 
@@ -315,10 +280,10 @@
         const elRate = document.getElementById('ebayRate');
         const elPrice = document.getElementById('price');
         const elCost = document.getElementById('cost');
-        const elShipCost = document.getElementById('shipCost');
+        const elShipCost = document.getElementById('shipCost'); // Label Kosten
         const elAdRate = document.getElementById('adRate');
-        const elShipCharged = document.getElementById('shipCharged');
         const elToggle = document.getElementById('freeShipToggle');
+        const elStatusText = document.getElementById('shipStatusText');
 
         // Outputs
         const lblBasis = document.getElementById('lblBasis');
@@ -347,27 +312,16 @@
             }
         });
 
-        // --- TOGGLE LOGIC ---
+        // --- TOGGLE TEXT ---
         elToggle.addEventListener('change', () => {
             if(elToggle.checked) {
-                // AN: Feld leeren & sperren
-                elShipCharged.value = "";
-                elShipCharged.placeholder = "Kostenlos";
-                elShipCharged.disabled = true;
+                elStatusText.innerHTML = "Versand<br>Kostenlos";
+                elStatusText.style.color = "var(--accent)";
             } else {
-                // AUS: Feld freigeben
-                elShipCharged.disabled = false;
-                elShipCharged.placeholder = "0 €";
+                elStatusText.innerHTML = "Kunde zahlt<br>Versand";
+                elStatusText.style.color = "#888";
             }
             calculate();
-        });
-
-        // Sync: Wenn man bei "Kunde zahlt" tippt, Label-Kosten vorausfüllen (User-Komfort)
-        elShipCharged.addEventListener('input', () => {
-            if(!elToggle.checked && document.activeElement === elShipCharged) {
-                elShipCost.value = elShipCharged.value;
-                calculate();
-            }
         });
 
         // --- CALCULATION ---
@@ -376,17 +330,17 @@
             const cost = parseFloat(elCost.value) || 0;
             const shipLabel = parseFloat(elShipCost.value) || 0;
             
-            // Rate (Standard 11)
-            let rVal = parseFloat(elRate.value);
+            const rVal = parseFloat(elRate.value);
             const rate = isNaN(rVal) ? 11.0 : rVal;
-            
             const adRate = parseFloat(elAdRate.value) || 0;
             
-            // Logik: Wenn Toggle AN -> Einnahme = 0. Sonst Input.
-            const shipInc = elToggle.checked ? 0 : (parseFloat(elShipCharged.value) || 0);
+            // SMART LOGIK:
+            // Wenn Toggle AN (Kostenlos): Einnahme aus Versand = 0
+            // Wenn Toggle AUS (Kunde zahlt): Einnahme aus Versand = Label Kosten (Durchlaufender Posten)
+            const shipIncome = elToggle.checked ? 0 : shipLabel;
 
-            // 1. Basis
-            const basis = price + shipInc;
+            // 1. Basis (Verkaufspreis + Versandeinnahme)
+            const basis = price + shipIncome;
 
             // 2. Provision (Netto + MwSt)
             const provVarNet = basis * (rate / 100);
@@ -410,7 +364,11 @@
 
             // 4. Summen
             const feesTotal = provGross + adGross;
+            
+            // Payout = Was eBay überweist
             const payout = basis - feesTotal;
+            
+            // Profit = Payout - Wareneinsatz - Versandkosten (die man an DHL zahlt)
             const profit = payout - cost - shipLabel;
 
             // UI
