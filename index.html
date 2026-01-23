@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>eBay Grid Fixed</title>
+    <title>eBay Grid Final</title>
     <style>
-        /* --- GRUNDGERÜST --- */
+        /* --- DESIGN SYSTEM --- */
         :root {
             --bg-body: #000000;
-            --bg-card: #1c1c1e;
-            --input-bg: #2c2c2e;
+            --input-bg: #1c1c1e;
+            --input-active: #2c2c2e;
             --text-white: #ffffff;
             --text-muted: #888;
             --accent: #0a84ff;
             --border: #333;
             --success: #32d74b;
             --danger: #ff453a;
-            --field-height: 44px; /* Fixe Höhe für Symmetrie */
+            --field-h: 46px; /* Höhe aller Felder */
+            --radius: 12px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -28,15 +29,14 @@
             height: 100vh;
             height: 100dvh;
             width: 100vw;
-            overflow: hidden;
+            overflow: hidden; /* Scroll-Sperre */
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
 
         /* --- APP CONTAINER --- */
-        .app {
+        .app-frame {
             width: 100%;
             height: 100%;
             max-width: 420px;
@@ -44,12 +44,11 @@
             display: flex;
             flex-direction: column;
             padding: max(10px, env(safe-area-inset-top)) 15px max(15px, env(safe-area-inset-bottom)) 15px;
-            background: #000;
             position: relative;
         }
 
         h1 {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-align: center;
             color: #555;
             text-transform: uppercase;
@@ -58,40 +57,39 @@
             flex-shrink: 0;
         }
 
-        /* --- 1. EINGABE BEREICH (Festes Grid) --- */
-        .input-area {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex-shrink: 0; /* Verhindert Schrumpfen */
-            background-color: #0f0f0f; /* Eigener Hintergrund zur Trennung */
-            padding: 12px;
-            border-radius: 16px;
-            border: 1px solid #222;
-            margin-bottom: 15px; /* Sicherer Abstand zur Rechnung */
-            z-index: 10; /* Liegt über allem */
-        }
-
-        /* Das Name-Feld */
-        .name-field input {
-            text-align: left;
-            padding-left: 12px;
-        }
-
-        /* Das 2-Spalten Gitter */
-        .grid-2 {
+        /* --- 1. EINGABE GITTER (Das Herzstück) --- */
+        .input-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Exakt 50% / 50% */
+            /* 2 Spalten, 4 Zeilen */
+            grid-template-columns: 1fr 1fr; 
             gap: 10px;
+            
+            background-color: #111;
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid #222;
+            flex-shrink: 0;
+            margin-bottom: 10px;
         }
 
-        /* Style für alle Felder */
-        .field-wrap { position: relative; height: var(--field-height); }
+        /* Der Name geht über die volle Breite (2 Spalten) */
+        .full-width {
+            grid-column: span 2;
+        }
 
-        label {
+        /* Styling für die Input-Wrapper */
+        .field-box {
+            position: relative;
+            height: var(--field-h);
+            background-color: var(--input-bg);
+            border-radius: var(--radius);
+        }
+
+        /* Labels IN den Feldern */
+        .field-label {
             position: absolute;
             top: 50%; transform: translateY(-50%);
-            left: 10px;
+            left: 12px;
             font-size: 0.6rem; color: #777;
             text-transform: uppercase; font-weight: 700;
             pointer-events: none; z-index: 2;
@@ -100,89 +98,90 @@
         input {
             width: 100%;
             height: 100%;
-            background-color: var(--input-bg);
+            background: transparent;
             border: 1px solid transparent;
             color: #fff;
-            border-radius: 8px;
-            padding: 0 10px 0 60px; /* Platz für Label */
+            border-radius: var(--radius);
+            padding: 0 10px 0 70px; /* Platz links für Label */
             font-size: 16px; font-weight: 500; text-align: right;
         }
-        input:focus { background-color: #3a3a3c; outline: none; border-color: #555; }
+        input:focus { background-color: var(--input-active); outline: none; border-color: #444; }
+        
+        #itemName { padding-left: 12px; text-align: left; }
 
 
-        /* --- DER SCHALTER (Toggle) --- */
-        /* Soll exakt wie ein Input aussehen */
-        .toggle-container {
-            height: var(--field-height);
+        /* --- DER SCHALTER (Als Gitter-Element) --- */
+        /* Er ist jetzt technisch genau so ein Kästchen wie die Inputs */
+        .toggle-box {
+            height: var(--field-h);
             background-color: var(--input-bg);
-            border-radius: 8px;
+            border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 8px;
+            padding: 0 10px;
             cursor: pointer;
             border: 1px solid transparent;
+            position: relative; /* Wichtig für Grid Positionierung */
         }
-        .toggle-container:active { background-color: #333; }
+        .toggle-box:active { background-color: #333; }
 
-        .t-labels { display: flex; flex-direction: column; justify-content: center; }
+        .t-text-group { display: flex; flex-direction: column; justify-content: center; }
         .t-head { font-size: 0.6rem; color: #777; font-weight: 700; text-transform: uppercase; }
-        .t-sub { font-size: 0.6rem; color: #aaa; font-weight: 500; margin-top: 1px; }
+        .t-state { font-size: 0.6rem; color: #aaa; font-weight: 500; margin-top: 1px; }
 
         /* Switch Grafik */
         .switch {
-            position: relative; width: 34px; height: 20px;
+            position: relative; width: 36px; height: 22px;
             background-color: #444; border-radius: 20px; transition: 0.3s;
         }
         .switch::after {
             content: ''; position: absolute; top: 2px; left: 2px;
-            width: 16px; height: 16px; background-color: #fff;
+            width: 18px; height: 18px; background-color: #fff;
             border-radius: 50%; transition: 0.3s;
         }
-        /* Checkbox Logik */
         input[type="checkbox"] { display: none; }
         input:checked + .switch { background-color: var(--accent); }
         input:checked + .switch::after { transform: translateX(14px); }
 
 
-        /* --- 2. RECHNUNG (Mitte) --- */
+        /* --- 2. RECHNUNG (Flexibel) --- */
         .calc-area {
-            flex: 1; /* Füllt den Rest */
-            min-height: 0; /* Erlaubt Schrumpfen wenn nötig */
+            flex: 1; 
             display: flex;
             flex-direction: column;
             justify-content: center;
             overflow: hidden; 
+            min-height: 0;
         }
 
         .calc-card {
             background: #111;
             border: 1px solid #222;
-            border-radius: 16px;
+            border-radius: 18px;
             padding: 15px 20px;
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
             height: 100%;
-            max-height: 280px; /* Begrenzung */
         }
 
-        .line { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; color: #888; }
+        .line { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; color: #888; margin-bottom: 2px; }
         .line.head { color: #fff; font-weight: 500; border-bottom: 1px solid #222; padding-bottom: 6px; margin-bottom: 6px; }
         .line.total { color: #ddd; font-weight: 500; border-top: 1px dashed #333; padding-top: 6px; margin-top: 6px; }
         .red { color: var(--danger); }
 
 
-        /* --- 3. PROFIT (Unten) --- */
+        /* --- 3. PROFIT (Fest Unten) --- */
         .profit-area {
+            margin-top: 10px;
             flex-shrink: 0;
-            margin-top: 15px;
         }
         
         .profit-card {
             background: #080808;
             border: 1px solid #222;
-            border-radius: 16px;
+            border-radius: 18px;
             padding: 15px 20px;
         }
 
@@ -195,52 +194,47 @@
 </head>
 <body>
 
-    <div class="app">
+    <div class="app-frame">
         <h1>Profit Kalkulator</h1>
 
-        <div class="input-area">
+        <div class="input-grid">
             
-            <div class="field-wrap name-field">
+            <div class="field-box full-width">
                 <input type="text" id="itemName" placeholder="Artikelname..." autocomplete="off">
             </div>
 
-            <div class="grid-2">
-                <div class="field-wrap">
-                    <label>eBay %</label>
-                    <input type="number" id="ebayRate" placeholder="11" inputmode="decimal">
-                </div>
-                <div class="field-wrap">
-                    <label>Anzeige %</label>
-                    <input type="number" id="adRate" placeholder="0" inputmode="decimal">
-                </div>
+            <div class="field-box">
+                <span class="field-label">eBay %</span>
+                <input type="number" id="ebayRate" placeholder="11" inputmode="decimal">
+            </div>
+            <div class="field-box">
+                <span class="field-label">Anzeige %</span>
+                <input type="number" id="adRate" placeholder="0" inputmode="decimal">
             </div>
 
-            <div class="grid-2">
-                <div class="field-wrap">
-                    <label>Verkauf</label>
-                    <input type="number" id="price" placeholder="€" inputmode="decimal">
-                </div>
-                <div class="field-wrap">
-                    <label>Einkauf</label>
-                    <input type="number" id="cost" placeholder="€" inputmode="decimal">
-                </div>
+            <div class="field-box">
+                <span class="field-label">Verkauf</span>
+                <input type="number" id="price" placeholder="€" inputmode="decimal">
+            </div>
+            <div class="field-box">
+                <span class="field-label">Einkauf</span>
+                <input type="number" id="cost" placeholder="€" inputmode="decimal">
             </div>
 
-            <div class="grid-2">
-                <div class="field-wrap">
-                    <label>Label</label>
-                    <input type="number" id="shipCost" placeholder="€" inputmode="decimal" style="color: #ffaa9d;">
-                </div>
-                
-                <label class="toggle-container">
-                    <div class="t-labels">
-                        <span class="t-head">Versand</span>
-                        <span class="t-sub" id="statusTxt">Kunde zahlt</span>
-                    </div>
-                    <input type="checkbox" id="freeShipToggle">
-                    <div class="switch"></div>
-                </label>
+            <div class="field-box">
+                <span class="field-label">Label</span>
+                <input type="number" id="shipCost" placeholder="€" inputmode="decimal" style="color: #ffaa9d;">
             </div>
+            
+            <label class="toggle-box">
+                <div class="t-text-group">
+                    <span class="t-head">Versand</span>
+                    <span class="t-state" id="statusTxt">Kunde zahlt</span>
+                </div>
+                <input type="checkbox" id="freeShipToggle">
+                <div class="switch"></div>
+            </label>
+
         </div>
 
 
@@ -252,7 +246,7 @@
                 </div>
 
                 <div class="line">
-                    <span>Provision</span>
+                    <span>eBay Provision</span>
                     <span class="red" id="lblProv">0,00 €</span>
                 </div>
                 
@@ -305,7 +299,7 @@
             { keys: ["buch", "spiel", "game"], rate: 9.0 }
         ];
 
-        // --- DOM ---
+        // --- ELEMENTS ---
         const inputs = document.querySelectorAll('input');
         const elName = document.getElementById('itemName');
         const elRate = document.getElementById('ebayRate');
@@ -316,7 +310,6 @@
         const elToggle = document.getElementById('freeShipToggle');
         const elStatus = document.getElementById('statusTxt');
 
-        // Outputs
         const lblBasis = document.getElementById('lblBasis');
         const lblProv = document.getElementById('lblProv');
         const lblVat = document.getElementById('lblVat');
@@ -329,9 +322,7 @@
 
         const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n);
 
-        // --- LOGIK ---
-
-        // 1. Auto Rate
+        // --- AUTO RATE ---
         elName.addEventListener('input', () => {
             const txt = elName.value.toLowerCase();
             if(txt.length > 2) {
@@ -343,7 +334,7 @@
             }
         });
 
-        // 2. Toggle Status Text
+        // --- TOGGLE TEXT ---
         elToggle.addEventListener('change', () => {
             if(elToggle.checked) {
                 elStatus.innerText = "Kostenlos";
@@ -355,7 +346,7 @@
             calculate();
         });
 
-        // 3. Berechnung
+        // --- CALC ---
         function calculate() {
             const price = parseFloat(elPrice.value) || 0;
             const cost = parseFloat(elCost.value) || 0;
@@ -365,22 +356,21 @@
             const rate = isNaN(rVal) ? 11.0 : rVal;
             const adRate = parseFloat(elAdRate.value) || 0;
 
-            // WICHTIG: 
-            // Toggle AUS: Einnahme = Preis + Labelkosten (Kunde zahlt Label)
-            // Toggle AN: Einnahme = Preis + 0
+            // LOGIK:
+            // Wenn Toggle AN (Kostenlos): Einnahme = Preis + 0
+            // Wenn Toggle AUS (Kunde zahlt): Einnahme = Preis + Label (als 1:1 Weitergabe)
             const shipIncome = elToggle.checked ? 0 : labelCost;
             
-            // Basis
+            // 1. Basis
             const basis = price + shipIncome;
 
-            // Provision
+            // 2. Gebühren
             const provVar = basis * (rate / 100);
             const provFix = 0.35;
             const provNet = provVar + provFix;
             const vat = provNet * 0.19;
             const provGross = provNet + vat;
 
-            // Anzeige
             let adGross = 0;
             if(adRate > 0) {
                 const adNet = basis * (adRate / 100);
@@ -391,12 +381,11 @@
                 rowAd.style.display = 'none';
             }
 
-            // Summen
             const fees = provGross + adGross;
             const payout = basis - fees;
             const profit = payout - cost - labelCost;
 
-            // Output
+            // UI
             lblBasis.innerText = fmt(basis);
             lblProv.innerText = "- " + fmt(provVar);
             lblVat.innerText = "- " + fmt(vat);
