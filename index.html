@@ -3,88 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>eBay Profit Fixed</title>
+    <title>eBay Fixed Pro</title>
     <style>
-        /* --- CORE --- */
+        /* --- DESIGN CORE --- */
         :root {
-            --bg-body: #000000;
-            --input-bg: #1c1c1e;
-            --input-active: #2c2c2e;
-            --text-main: #ffffff;
-            --text-muted: #888;
+            --bg-black: #000000;
+            --bg-card: #1c1c1e; /* Input Hintergrund */
+            --bg-app: #000000;
+            --text-white: #ffffff;
+            --text-gray: #98989d;
             --accent: #0a84ff;
             --border: #333;
             --success: #32d74b;
             --danger: #ff453a;
-            --field-h: 40px; /* Sehr kompakt */
+            --field-h: 44px; /* Einheitliche Höhe für alles */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            /* Zwingt die App auf exakte Bildschirmhöhe - Kein Scrollen des Body */
+            background-color: var(--bg-black);
+            color: var(--text-white);
             height: 100vh;
-            height: 100dvh; 
+            height: 100dvh; /* Wichtig für Mobile */
             width: 100vw;
-            overflow: hidden; 
+            overflow: hidden; /* Kein Scrollen am Body */
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Dieser Container simuliert ein Hochkant-Handy, auch im Querformat */
-        .app-shell {
+        /* --- DER APP RAHMEN --- */
+        /* Bleibt immer wie ein Handy-Screen, auch im Querformat */
+        .app-frame {
             width: 100%;
             height: 100%;
-            /* Begrenzungen für Landscape/Desktop */
-            max-width: 420px;
-            max-height: 900px; 
+            max-width: 420px; /* Breite eines großen Handys */
+            max-height: 900px;
+            background-color: var(--bg-app);
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Verteilt Oben/Mitte/Unten */
             padding: max(10px, env(safe-area-inset-top)) 15px max(15px, env(safe-area-inset-bottom)) 15px;
-            background: var(--bg-body);
             position: relative;
         }
 
-        /* --- OBEN: INPUTS --- */
-        .section-inputs {
+        h1 {
+            font-size: 0.75rem;
+            text-align: center;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        /* --- 1. INPUT BEREICH (Oben) --- */
+        .input-section {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            flex-shrink: 0; /* Darf nicht kleiner werden */
+            flex-shrink: 0;
+            margin-bottom: 10px;
         }
 
-        h1 {
-            font-size: 0.7rem;
-            text-align: center;
-            color: #444;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
+        /* Grid für 2-Spalten Layout */
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
-        .input-card {
-            background: #111;
-            border: 1px solid #222;
-            border-radius: 16px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .field { position: relative; }
+        .field-wrapper { position: relative; }
 
         label {
             position: absolute;
             top: 50%; transform: translateY(-50%);
-            left: 10px;
-            font-size: 0.6rem; color: #666;
+            left: 12px;
+            font-size: 0.65rem; color: #777;
             text-transform: uppercase; font-weight: 700;
             pointer-events: none; z-index: 2;
         }
@@ -92,149 +88,155 @@
         input {
             width: 100%;
             height: var(--field-h);
-            background-color: var(--input-bg);
+            background-color: var(--bg-card);
             border: 1px solid transparent;
             color: #fff;
-            border-radius: 8px;
-            padding: 0 10px 0 70px; /* Platz für Label */
-            font-size: 15px; font-weight: 500; text-align: right;
+            border-radius: 10px;
+            /* Platz links für Label, rechts für Zahl */
+            padding: 0 10px 0 60px; 
+            font-size: 16px; font-weight: 500; text-align: right;
+            transition: 0.2s;
         }
-        input:focus { background-color: var(--input-active); border-color: #444; outline: none; }
+        input:focus { background-color: #2c2c2e; border-color: #555; outline: none; }
         
-        #itemName { padding-left: 10px; text-align: left; }
+        /* Spezialfall Name: Text links */
+        #itemName { padding-left: 12px; text-align: left; }
 
-        /* TOGGLE BUTTON (Im Grid integriert) */
-        .toggle-btn {
-            background-color: var(--input-bg);
-            border-radius: 8px;
+        /* --- TOGGLE BUTTON (Das Symmetrie-Stück) --- */
+        /* Sieht exakt aus wie ein Input-Feld */
+        .toggle-box {
+            background-color: var(--bg-card);
+            border-radius: 10px;
             height: var(--field-h);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 8px; cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            cursor: pointer;
             border: 1px solid transparent;
         }
-        .t-txt { font-size: 0.6rem; color: #888; font-weight: 700; text-transform: uppercase; line-height: 1; }
-        
+        .toggle-box:active { background-color: #2c2c2e; }
+
+        .t-left { display: flex; flex-direction: column; justify-content: center; }
+        .t-label { font-size: 0.6rem; color: #777; font-weight: 700; text-transform: uppercase; }
+        .t-status { font-size: 0.7rem; color: #aaa; font-weight: 500; margin-top: 1px; }
+
+        /* Custom Switch CSS */
         .switch-ui {
-            position: relative; width: 32px; height: 18px;
-            background-color: #333; border-radius: 20px; transition: 0.3s;
+            position: relative; width: 34px; height: 20px;
+            background-color: #444; border-radius: 20px; transition: 0.3s;
         }
         .switch-ui::after {
             content: ''; position: absolute; top: 2px; left: 2px;
-            width: 14px; height: 14px; background-color: #fff; border-radius: 50%; transition: 0.3s;
+            width: 16px; height: 16px; background-color: #fff;
+            border-radius: 50%; transition: 0.3s;
         }
+        
         input[type="checkbox"] { display: none; }
         input:checked + .switch-ui { background-color: var(--accent); }
         input:checked + .switch-ui::after { transform: translateX(14px); }
 
 
-        /* --- MITTE: RECHNUNG (Füllt den Platz) --- */
-        .section-calc {
-            flex-grow: 1; /* Nimmt allen freien Platz */
+        /* --- 2. RECHNUNG (Mitte - Flexibel) --- */
+        .calc-section {
+            flex: 1; /* Füllt den gesamten freien Platz */
             display: flex;
             flex-direction: column;
             justify-content: center; /* Zentriert Inhalt vertikal */
-            padding: 5px 0;
-            min-height: 0; /* Wichtig für Flexbox Schrumpfung */
+            padding: 5px 10px;
+            min-height: 0;
         }
-        
-        .calc-box {
+
+        .calc-card {
             background: #111;
             border: 1px solid #222;
             border-radius: 16px;
-            padding: 12px 15px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            justify-content: space-around; /* Verteilt Zeilen gleichmäßig */
+            justify-content: space-around;
             height: 100%;
-            max-height: 220px; /* Begrenzung damit es nicht riesig wird */
+            max-height: 240px; /* Begrenzung damit es kompakt bleibt */
         }
 
-        .line {
-            display: flex; justify-content: space-between; align-items: baseline;
-            font-size: 0.85rem; color: #888;
-        }
-        .line.head { color: #fff; font-weight: 500; border-bottom: 1px solid #222; padding-bottom: 4px; margin-bottom: 2px; }
-        .line.hl { color: #ddd; font-weight: 500; border-top: 1px dashed #333; padding-top: 4px; }
+        .line { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; color: #888; margin-bottom: 2px;}
+        .line.head { color: #fff; font-weight: 500; border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 5px; }
+        .line.hl { color: #ddd; font-weight: 500; border-top: 1px dashed #333; padding-top: 5px; margin-top: 5px; }
         .red { color: var(--danger); }
 
 
-        /* --- UNTEN: PROFIT (Fest) --- */
-        .section-profit {
-            flex-shrink: 0;
+        /* --- 3. PROFIT (Unten - Fest) --- */
+        .profit-section {
             margin-top: 10px;
+            flex-shrink: 0;
         }
-
+        
         .profit-card {
             background: #080808;
             border: 1px solid #222;
             border-radius: 16px;
-            padding: 12px 15px;
+            padding: 15px 20px;
         }
 
-        .p-final { display: flex; justify-content: space-between; align-items: center; }
+        .p-details { display: flex; justify-content: space-between; font-size: 0.75rem; color: #555; margin-bottom: 5px; }
+        .p-main { display: flex; justify-content: space-between; align-items: center; }
         .p-lbl { font-size: 0.9rem; font-weight: 600; color: #fff; }
         .p-val { font-size: 1.8rem; font-weight: 700; color: var(--success); letter-spacing: -0.5px; }
-        
-        .p-sub {
-            display: flex; justify-content: space-between;
-            font-size: 0.7rem; color: #555; margin-bottom: 4px;
-        }
 
     </style>
 </head>
 <body>
 
-    <div class="app-shell">
+    <div class="app-frame">
         
-        <div class="section-inputs">
-            <h1>Profit Kalkulator</h1>
-            <div class="input-card">
-                <input type="text" id="itemName" placeholder="Artikelname..." autocomplete="off">
+        <h1>eBay Profit</h1>
 
-                <div class="row">
-                    <div class="field">
-                        <label>eBay %</label>
-                        <input type="number" id="ebayRate" placeholder="11" inputmode="decimal">
-                    </div>
-                    <div class="field">
-                        <label>Anzeige %</label>
-                        <input type="number" id="adRate" placeholder="0" inputmode="decimal">
-                    </div>
-                </div>
+        <div class="input-section">
+            <input type="text" id="itemName" placeholder="Artikelname..." autocomplete="off">
 
-                <div class="row">
-                    <div class="field">
-                        <label>Verkauf</label>
-                        <input type="number" id="price" placeholder="€" inputmode="decimal">
-                    </div>
-                    <div class="field">
-                        <label>Einkauf</label>
-                        <input type="number" id="cost" placeholder="€" inputmode="decimal">
-                    </div>
+            <div class="row">
+                <div class="field-wrapper">
+                    <label>eBay %</label>
+                    <input type="number" id="ebayRate" placeholder="11" inputmode="decimal">
                 </div>
+                <div class="field-wrapper">
+                    <label>Anzeige %</label>
+                    <input type="number" id="adRate" placeholder="0" inputmode="decimal">
+                </div>
+            </div>
 
-                <div class="row">
-                    <div class="field">
-                        <label>Versand</label>
-                        <input type="number" id="shipCost" placeholder="Label" inputmode="decimal" style="color: #ffaa9d;">
-                    </div>
-                    
-                    <label class="toggle-btn">
-                        <div style="display:flex; flex-direction:column;">
-                            <span class="t-txt" id="shipTxt">Kunde zahlt</span>
-                            <span class="t-txt" style="font-size:0.55rem; color:#555;">Versand</span>
-                        </div>
-                        <input type="checkbox" id="freeShipToggle">
-                        <div class="switch-ui"></div>
-                    </label>
+            <div class="row">
+                <div class="field-wrapper">
+                    <label>Verkauf</label>
+                    <input type="number" id="price" placeholder="€" inputmode="decimal">
                 </div>
+                <div class="field-wrapper">
+                    <label>Einkauf</label>
+                    <input type="number" id="cost" placeholder="€" inputmode="decimal">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="field-wrapper">
+                    <label>Label</label>
+                    <input type="number" id="shipCost" placeholder="€" inputmode="decimal" style="color: #ffaa9d;">
+                </div>
+                
+                <label class="toggle-box">
+                    <div class="t-left">
+                        <span class="t-label">Kunde zahlt</span>
+                        <span class="t-status" id="statusTxt">Versand</span>
+                    </div>
+                    <input type="checkbox" id="freeShipToggle">
+                    <div class="switch-ui"></div>
+                </label>
             </div>
         </div>
 
-        <div class="section-calc">
-            <div class="calc-box">
+        <div class="calc-section">
+            <div class="calc-card">
                 <div class="line head">
-                    <span>Basis (Umsatz)</span>
+                    <span>Basiswert</span>
                     <span id="lblBasis">0,00 €</span>
                 </div>
 
@@ -255,7 +257,7 @@
 
                 <div id="rowAd" style="display:none; width: 100%;">
                     <div class="line" style="color: #ffab40;">
-                        <span>Anzeigegebühr</span>
+                        <span>Anzeige</span>
                         <span id="lblAd">0,00 €</span>
                     </div>
                 </div>
@@ -267,13 +269,13 @@
             </div>
         </div>
 
-        <div class="section-profit">
+        <div class="profit-section">
             <div class="profit-card">
-                <div class="p-sub">
-                    <span>Payout: <span id="lblPayout" style="color:#ccc;">0 €</span></span>
-                    <span>Abzug: <span id="lblDeductions" class="red">0 €</span></span>
+                <div class="p-details">
+                    <span>Payout: <span id="lblPayout" style="color:#bbb;">0 €</span></span>
+                    <span>Kosten: <span id="lblDeductions" class="red">0 €</span></span>
                 </div>
-                <div class="p-final">
+                <div class="p-main">
                     <span class="p-lbl">Reingewinn</span>
                     <span class="p-val" id="lblProfit">0,00 €</span>
                 </div>
@@ -283,7 +285,7 @@
     </div>
 
     <script>
-        // --- DATA ---
+        // --- DATA & ELEMENTS ---
         const categories = [
             { keys: ["sodapop", "flasche", "haix", "werkzeug"], rate: 11.0 },
             { keys: ["handy", "iphone", "samsung", "tech"], rate: 6.5 },
@@ -291,7 +293,6 @@
             { keys: ["buch", "spiel", "game"], rate: 9.0 }
         ];
 
-        // --- ELEMENTS ---
         const inputs = document.querySelectorAll('input');
         const elName = document.getElementById('itemName');
         const elRate = document.getElementById('ebayRate');
@@ -300,8 +301,9 @@
         const elShipCost = document.getElementById('shipCost');
         const elAdRate = document.getElementById('adRate');
         const elToggle = document.getElementById('freeShipToggle');
-        const elShipTxt = document.getElementById('shipTxt');
+        const elStatusTxt = document.getElementById('statusTxt');
 
+        // Output Refs
         const lblBasis = document.getElementById('lblBasis');
         const lblProv = document.getElementById('lblProv');
         const lblVat = document.getElementById('lblVat');
@@ -314,7 +316,7 @@
 
         const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n);
 
-        // --- LOGIC ---
+        // --- EVENTS ---
         
         // Auto-Rate
         elName.addEventListener('input', () => {
@@ -330,30 +332,31 @@
             }
         });
 
-        // Toggle Text Update
+        // Toggle Visuals
         elToggle.addEventListener('change', () => {
             if(elToggle.checked) {
-                elShipTxt.innerText = "Kostenlos";
-                elShipTxt.style.color = "var(--accent)";
+                elStatusTxt.innerText = "Kostenlos";
+                elStatusTxt.style.color = "var(--accent)";
             } else {
-                elShipTxt.innerText = "Kunde zahlt";
-                elShipTxt.style.color = "#888";
+                elStatusTxt.innerText = "Versand";
+                elStatusTxt.style.color = "#aaa";
             }
             calculate();
         });
 
+        // --- MATH ---
         function calculate() {
             const price = parseFloat(elPrice.value) || 0;
             const cost = parseFloat(elCost.value) || 0;
             const shipLabel = parseFloat(elShipCost.value) || 0;
             
-            const rVal = parseFloat(elRate.value);
+            let rVal = parseFloat(elRate.value);
             const rate = isNaN(rVal) ? 11.0 : rVal;
             const adRate = parseFloat(elAdRate.value) || 0;
             
-            // SIMPLIFIZIERTE LOGIK:
-            // Toggle AUS: Kunde zahlt exakt das, was Label kostet (Durchlaufposten)
-            // Toggle AN: Kunde zahlt 0
+            // LOGIK:
+            // Toggle AUS: Kunde zahlt Versand (Income = Label Cost)
+            // Toggle AN: Kunde zahlt nichts (Income = 0)
             const shipIncome = elToggle.checked ? 0 : shipLabel;
 
             // 1. Basis
@@ -381,7 +384,7 @@
             const payout = basis - feesTotal;
             const profit = payout - cost - shipLabel;
 
-            // OUTPUT
+            // 3. UI
             lblBasis.innerText = fmt(basis);
             lblProv.innerText = "- " + fmt(provVarNet);
             lblVat.innerText = "- " + fmt(vatProv);
